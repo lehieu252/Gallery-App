@@ -10,7 +10,7 @@ import com.example.galleryview.R
 import com.example.galleryview.models.Item
 
 class ViewPAdapter(val context: Activity) : PagerAdapter() {
-    var data = listOf<Item>()
+    var data = ArrayList<Item>()
         set(value) {
             field = value
             notifyDataSetChanged()

@@ -33,14 +33,13 @@ class ViewFragment : Fragment() {
         val curPos = bundle?.getInt("position")
         context?.let { viewModel.getAllItemView(it) }
         val viewPAdapter = activity?.let { ViewPAdapter(it) }
-        binding.viewPager.adapter = viewPAdapter
         viewModel.itemView.observe(viewLifecycleOwner, Observer {
             if (viewPAdapter != null) {
                 viewPAdapter.data = it
-                listPath = it
             }
         })
 //        binding.indicator.setupWithViewPager(binding.viewPager, listPath, 70F)
+        binding.viewPager.adapter = viewPAdapter
         binding.viewPager.currentItem = 1
 
 //        binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {

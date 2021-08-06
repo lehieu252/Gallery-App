@@ -1,6 +1,7 @@
 package com.example.galleryview.views
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,6 @@ class AlbumFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_album, container, false)
         context?.let { viewModel.getAllAlbums(it) }
         showAlbums()
@@ -36,7 +36,13 @@ class AlbumFragment : Fragment() {
             if (adapter != null) {
                 adapter.data = it
             }
+            Log.d("ListAlbum", it.toString())
         })
         binding.gridView.adapter = adapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+        context?.let { viewModel.getAllAlbums(it) }
     }
 }

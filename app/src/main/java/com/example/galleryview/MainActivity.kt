@@ -1,28 +1,31 @@
 package com.example.galleryview
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
+import android.view.animation.TranslateAnimation
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.example.galleryview.databinding.ActivityMainBinding
 import com.example.galleryview.viewmodels.MainViewModel
 import com.example.galleryview.viewmodels.MainViewModelFactory
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModelFactory: MainViewModelFactory
-    private lateinit var viewModel : MainViewModel
+    private lateinit var viewModel: MainViewModel
+
+    @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         viewModel.onClickPicture.observe(this, {
-            if(it) {
+            if (it) {
                 binding.picturesBtn.typeface = Typeface.DEFAULT_BOLD
                 binding.storiesBtn.typeface = Typeface.DEFAULT
                 binding.albumsBtn.typeface = Typeface.DEFAULT
@@ -49,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.onClickAlbum.observe(this, {
-            if(it) {
+            if (it) {
                 binding.picturesBtn.typeface = Typeface.DEFAULT
                 binding.storiesBtn.typeface = Typeface.DEFAULT
                 binding.albumsBtn.typeface = Typeface.DEFAULT_BOLD
@@ -57,10 +60,32 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.onClickStory.observe(this, {
-            if(it) {
+            if (it) {
                 binding.picturesBtn.typeface = Typeface.DEFAULT
                 binding.storiesBtn.typeface = Typeface.DEFAULT_BOLD
                 binding.albumsBtn.typeface = Typeface.DEFAULT
+            }
+        })
+
+        viewModel.getAllItems(this)
+        viewModel.getAllItemView(this)
+
+        viewModel.hideBottomNav.observe(this, {
+            if (it) {
+                val animate = TranslateAnimation(
+                    0F, 0F, 0F,
+                    binding.bottomNavigation.height.toFloat()
+                )
+                animate.duration = 100
+                animate.fillAfter = true
+                binding.bottomNavigation.startAnimation(animate)
+                binding.bottomNavigation.visibility = View.GONE
+            } else {
+                val animate =
+                    TranslateAnimation(0F, 0F, binding.bottomNavigation.height.toFloat(), 0F)
+                animate.duration = 100
+                animate.fillAfter = true
+                binding.bottomNavigation.startAnimation(animate)
             }
         })
         onClickBottomButton()
@@ -97,13 +122,34 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             albumsBtn.setOnClickListener(View.OnClickListener {
                 viewModel.openAlbumFragment()
+                val navController =
+                    Navigation.findNavController(this@MainActivity, R.id.myNavHostFragment)
+                navController.popBackStack()
+                navController.navigateUp()
+                navController.navigate(R.id.albumFragment)
             })
             picturesBtn.setOnClickListener(View.OnClickListener {
                 viewModel.openPictureFragment()
+                val navController =
+                    Navigation.findNavController(this@MainActivity, R.id.myNavHostFragment)
+                navController.popBackStack()
+                navController.navigateUp()
+                navController.navigate(R.id.pictureFragment)
             })
             storiesBtn.setOnClickListener(View.OnClickListener {
                 viewModel.openStoryFragment()
+                val navController =
+                    Navigation.findNavController(this@MainActivity, R.id.myNavHostFragment)
+                navController.popBackStack()
+                navController.navigateUp()
+                navController.navigate(R.id.storyFragment)
             })
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getAllItemView(this)
+        viewModel.getAllItems(this)
     }
 }

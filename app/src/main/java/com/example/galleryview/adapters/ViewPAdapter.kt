@@ -16,11 +16,17 @@ class ViewPAdapter(val context: Activity) : PagerAdapter() {
             notifyDataSetChanged()
         }
 
+//    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+
+//    }
+
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val view = context.layoutInflater.inflate(R.layout.item_view, container, false)
         val imgSlider = view.findViewById<ImageView>(R.id.image_slider)
-        Glide.with(container.context).load(data[position].path).into(imgSlider)
-        container.addView(view)
+        if (!data[position].isHeader) {
+            Glide.with(container.context).load(data[position].path).into(imgSlider)
+            container.addView(view)
+        }
         return view
     }
 
@@ -41,7 +47,9 @@ class ViewPAdapter(val context: Activity) : PagerAdapter() {
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        container.removeView(`object` as View)
+        if (data[position].isHeader) {
+            container.removeView(`object` as View)
+        }
     }
 
 }

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -18,17 +19,17 @@ import com.example.galleryview.viewmodels.MainViewModelFactory
 
 class PictureFragment : Fragment() {
     private lateinit var binding: FragmentPictureBinding
-    private lateinit var viewModel: MainViewModel
-    private lateinit var viewModelFactory: MainViewModelFactory
+    private val viewModel: MainViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModelFactory = MainViewModelFactory()
-        viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
-        viewModel.getAllItems(requireContext())
-
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_picture, container, false)
+        setUpGridView()
+        return binding.root
+    }
+
+    private fun setUpGridView(){
         val itemAdapter = activity?.let { ItemAdapter(it) }
         val layoutManager = GridLayoutManager(activity, 4)
         binding.gridView.layoutManager = layoutManager
@@ -41,16 +42,10 @@ class PictureFragment : Fragment() {
         }
         binding.gridView.adapter = itemAdapter;
         viewModel.itemList.observe(viewLifecycleOwner, Observer {
-            Log.d("List Image: ", it.toString())
             if (itemAdapter != null) {
                 itemAdapter.data = it
             }
+            Log.d("List", it.toString())
         })
-        return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        context?.let { viewModel.getAllItems(it) }
     }
 }

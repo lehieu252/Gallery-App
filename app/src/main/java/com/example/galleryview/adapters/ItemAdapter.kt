@@ -50,6 +50,8 @@ class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewH
             holder.item_holder.visibility = View.GONE
             holder.header.text = item.name
         } else {
+            holder.header_holder.visibility = View.GONE
+            holder.item_holder.visibility = View.VISIBLE
             if (item.isVideo) {
                 holder.video_tag.visibility = View.VISIBLE
                 val minute = item.duration / (1000 * 60)
@@ -61,12 +63,14 @@ class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewH
                     "${minute}:${second}"
                 }
                 holder.video_duration.text = duration
+            } else {
+                holder.video_tag.visibility = View.GONE
             }
             Glide.with(context).load(item.path).placeholder(R.color.grey).centerCrop()
                 .transition(DrawableTransitionOptions.withCrossFade(250)).into(holder.item_image)
             holder.item_holder.setOnClickListener {
                 val bundle: Bundle = Bundle()
-                bundle.putInt("position", position)
+                bundle.putInt("position", item.position)
                 it.findNavController().navigate(R.id.action_pictureFragment_to_viewFragment, bundle)
             }
         }

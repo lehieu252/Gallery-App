@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.getAllItems(this)
         viewModel.getAllItemView(this)
+        viewModel.getAllAlbums(this)
 
         viewModel.hideBottomNav.observe(this, {
             if (it) {

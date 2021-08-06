@@ -13,4 +13,9 @@
     <string name="start_ss">Start slide show</string>
     <string name="_00_00">00:00</string>
     <string name="thumb_image_desc">thumbItem</string>
+    <string name="create_album">Create album</string>
+    <string name="create_group">Create group</string>
+    <string name="hide_or_unhide">Hide or unhide album</string>
+    <string name="camera">Camera</string>
+    <string name="_195">195</string>
 </resources>

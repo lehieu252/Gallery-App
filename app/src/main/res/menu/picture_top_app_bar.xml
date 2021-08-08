@@ -8,19 +8,19 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/edit"
+        android:id="@+id/pEdit"
         android:title="@string/edit"
         app:showAsAction="never" />
     <item
-        android:id="@+id/select_all"
+        android:id="@+id/pSelectAll"
         android:title="@string/select_all"
         app:showAsAction="never" />
     <item
-        android:id="@+id/create"
+        android:id="@+id/pCreate"
         android:title="@string/create"
         app:showAsAction="never" />
     <item
-        android:id="@+id/slide_show"
+        android:id="@+id/pSlide"
         android:title="@string/start_ss"
         app:showAsAction="never" />
 </menu>

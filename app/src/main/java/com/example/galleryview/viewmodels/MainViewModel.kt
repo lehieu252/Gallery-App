@@ -95,6 +95,7 @@ class MainViewModel : ViewModel(), CoroutineScope {
             listAlbum[index].itemCount = value.size
             value.sortedByDescending { it.createdDate }
             listAlbum[index].lastItemPath = value[0].path
+//            Log.d("Album", value.toString())
         }
         return listAlbum
     }

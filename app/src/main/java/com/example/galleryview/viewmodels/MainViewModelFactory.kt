@@ -8,6 +8,6 @@ class MainViewModelFactory : ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             return MainViewModel() as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown MainViewModel class")
     }
 }

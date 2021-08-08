@@ -23,7 +23,6 @@ class AlbumFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_album, container, false)
-        context?.let { viewModel.getAllAlbums(it) }
         showAlbums()
         return binding.root
     }
@@ -36,9 +35,9 @@ class AlbumFragment : Fragment() {
             if (adapter != null) {
                 adapter.data = it
             }
-            Log.d("ListAlbum", it.toString())
         })
         binding.gridView.adapter = adapter
+
     }
 
     override fun onResume() {

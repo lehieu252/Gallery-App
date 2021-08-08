@@ -22,7 +22,11 @@
         android:id="@+id/albumFragment"
         android:name="com.example.galleryview.views.AlbumFragment"
         android:label="fragment_album"
-        tools:layout="@layout/fragment_album" />
+        tools:layout="@layout/fragment_album" >
+        <action
+            android:id="@+id/action_albumFragment_to_albumViewFragment"
+            app:destination="@id/albumViewFragment" />
+    </fragment>
     <fragment
         android:id="@+id/storyFragment"
         android:name="com.example.galleryview.views.StoryFragment"
@@ -33,4 +37,17 @@
         android:name="com.example.galleryview.views.ViewFragment"
         tools:layout="@layout/fragment_view"
         android:label="ViewFragment" />
+    <fragment
+        android:id="@+id/albumViewFragment"
+        android:name="com.example.galleryview.views.AlbumViewFragment"
+        tools:layout="@layout/fragment_album_view"
+        android:label="AlbumViewFragment" >
+        <action
+            android:id="@+id/action_albumViewFragment_to_viewFragment"
+            app:destination="@id/viewFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 </navigation>

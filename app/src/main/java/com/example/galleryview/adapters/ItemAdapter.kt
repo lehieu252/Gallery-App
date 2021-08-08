@@ -5,18 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.galleryview.R
 import com.example.galleryview.models.Item
+import com.example.galleryview.views.AlbumViewFragment
+import com.example.galleryview.views.PictureFragment
 
-class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
+class ItemAdapter(val context: Context, val type: Int) :
+    RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var header_holder = itemView.findViewById<LinearLayout>(R.id.header_holder)
         var item_holder = itemView.findViewById<RelativeLayout>(R.id.item_holder)
@@ -24,11 +25,7 @@ class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewH
         var item_image = itemView.findViewById<ImageView>(R.id.item_image)
         var video_tag = itemView.findViewById<LinearLayout>(R.id.video_tag)
         var video_duration = itemView.findViewById<TextView>(R.id.video_duration)
-    }
-
-    companion object {
-        const val TYPE_ITEM = 0;
-        const val TYPE_HEADER = 1;
+        var itemCheckBox = itemView.findViewById<CheckBox>(R.id.item_checkbox)
     }
 
     var data = listOf<Item>()
@@ -36,6 +33,13 @@ class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewH
             field = value
             notifyDataSetChanged()
         }
+    var albumName: String = ""
+    var isSelectedMode = false
+    private lateinit var itemClick: OnItemClick
+
+    fun setItemClick(onItemClick: OnItemClick) {
+        this.itemClick = onItemClick
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemAdapter.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -50,14 +54,19 @@ class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewH
             holder.item_holder.visibility = View.GONE
             holder.header.text = item.name
         } else {
+            if(isSelectedMode){
+                holder.itemCheckBox.visibility = View.VISIBLE
+            }
+            else{
+                holder.itemCheckBox.visibility = View.GONE
+            }
             holder.header_holder.visibility = View.GONE
             holder.item_holder.visibility = View.VISIBLE
             if (item.isVideo) {
                 holder.video_tag.visibility = View.VISIBLE
                 val minute = item.duration / (1000 * 60)
                 val second = (item.duration / 1000) % 60
-                var duration = ""
-                duration = if (second < 10) {
+                var duration = if (second < 10) {
                     "${minute}:0${second}"
                 } else {
                     "${minute}:${second}"
@@ -68,10 +77,37 @@ class ItemAdapter(val context: Context) : RecyclerView.Adapter<ItemAdapter.ViewH
             }
             Glide.with(context).load(item.path).placeholder(R.color.grey).centerCrop()
                 .transition(DrawableTransitionOptions.withCrossFade(250)).into(holder.item_image)
+
             holder.item_holder.setOnClickListener {
-                val bundle: Bundle = Bundle()
-                bundle.putInt("position", item.position)
-                it.findNavController().navigate(R.id.action_pictureFragment_to_viewFragment, bundle)
+                if (isSelectedMode) {
+//                    itemClick.onItemClick(it, position)
+                    holder.itemCheckBox.isChecked = true
+                }
+                else {
+                    val bundle: Bundle = Bundle()
+                    if (type == PictureFragment.TYPE_PICTURE_FRAGMENT) {
+                        bundle.putInt("position", item.position)
+                        bundle.putInt("type", type)
+                        it.findNavController()
+                            .navigate(R.id.action_pictureFragment_to_viewFragment, bundle)
+                    } else if (type == AlbumViewFragment.TYPE_ALBUM_FRAGMENT) {
+                        bundle.putInt("position", position)
+                        bundle.putInt("type", type)
+                        bundle.putString("album_name", albumName)
+                        it.findNavController()
+                            .navigate(R.id.action_albumViewFragment_to_viewFragment, bundle)
+                    }
+                }
+            }
+
+            holder.item_holder.setOnLongClickListener {
+//                itemClick.onItemLongClick(it, position)
+                if(!isSelectedMode) {
+                    isSelectedMode = true
+                    this.notifyDataSetChanged()
+                    true
+                }
+                else false
             }
         }
     }

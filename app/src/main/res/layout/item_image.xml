@@ -40,16 +40,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <!--    <CheckBox-->
-        <!--        android:id="@+id/circle"-->
-        <!--        android:layout_width="wrap_content"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        android:layout_alignParentRight="true"-->
-        <!--        android:layout_marginTop="2dp"-->
-        <!--        android:layout_marginRight="2dp"-->
-        <!--        android:button="@drawable/ic_baseline_radio_button_unchecked_24"-->
-        <!--        android:visibility="visible"-->
-        <!--        android:clickable="false" />-->
+        <CheckBox
+            android:id="@+id/item_checkbox"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:button="@drawable/custom_checkbox"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:visibility="gone"/>
         <LinearLayout
             android:id="@+id/video_tag"
             android:layout_width="wrap_content"

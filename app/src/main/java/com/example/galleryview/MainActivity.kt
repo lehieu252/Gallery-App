@@ -73,20 +73,18 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.hideBottomNav.observe(this, {
             if (it) {
+                binding.bottomNavigation.visibility = View.GONE
                 val animate = TranslateAnimation(
-                    0F, 0F, 0F,
-                    binding.bottomNavigation.height.toFloat()
+                    0f, 0f, 0f, binding.bottomNavigation.height.toFloat()
                 )
                 animate.duration = 100
-                animate.fillAfter = true
                 binding.bottomNavigation.startAnimation(animate)
-                binding.bottomNavigation.visibility = View.GONE
             } else {
                 val animate =
                     TranslateAnimation(0F, 0F, binding.bottomNavigation.height.toFloat(), 0F)
                 animate.duration = 100
-                animate.fillAfter = true
                 binding.bottomNavigation.startAnimation(animate)
+                binding.bottomNavigation.visibility = View.VISIBLE
             }
         })
         onClickBottomButton()
@@ -148,9 +146,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getAllItemView(this)
-        viewModel.getAllItems(this)
-    }
 }

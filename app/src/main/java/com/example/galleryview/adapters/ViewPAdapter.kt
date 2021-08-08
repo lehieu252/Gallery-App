@@ -10,15 +10,14 @@ import com.example.galleryview.R
 import com.example.galleryview.models.Item
 
 class ViewPAdapter(val context: Activity) : PagerAdapter() {
+
     var data = ArrayList<Item>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-//    override fun instantiateItem(container: ViewGroup, position: Int): Any {
 
-//    }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val view = context.layoutInflater.inflate(R.layout.item_view, container, false)

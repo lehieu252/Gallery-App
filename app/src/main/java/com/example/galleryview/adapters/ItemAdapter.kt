@@ -2,14 +2,17 @@ package com.example.galleryview.adapters
 
 import android.content.Context
 import android.os.Bundle
+import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.util.set
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import com.example.galleryview.R
 import com.example.galleryview.models.Item
 import com.example.galleryview.views.AlbumViewFragment
@@ -35,6 +38,7 @@ class ItemAdapter(val context: Context, val type: Int) :
         }
     var albumName: String = ""
     var isSelectedMode = false
+    var selectedList = SparseBooleanArray(data.size)
     private lateinit var itemClick: OnItemClick
 
     fun setItemClick(onItemClick: OnItemClick) {
@@ -54,10 +58,10 @@ class ItemAdapter(val context: Context, val type: Int) :
             holder.item_holder.visibility = View.GONE
             holder.header.text = item.name
         } else {
-            if(isSelectedMode){
+            if (isSelectedMode) {
                 holder.itemCheckBox.visibility = View.VISIBLE
-            }
-            else{
+            } else {
+                holder.itemCheckBox.isChecked = false
                 holder.itemCheckBox.visibility = View.GONE
             }
             holder.header_holder.visibility = View.GONE
@@ -76,14 +80,19 @@ class ItemAdapter(val context: Context, val type: Int) :
                 holder.video_tag.visibility = View.GONE
             }
             Glide.with(context).load(item.path).placeholder(R.color.grey).centerCrop()
-                .transition(DrawableTransitionOptions.withCrossFade(250)).into(holder.item_image)
+                .transition(DrawableTransitionOptions.withCrossFade(100)).into(holder.item_image)
 
             holder.item_holder.setOnClickListener {
                 if (isSelectedMode) {
-//                    itemClick.onItemClick(it, position)
-                    holder.itemCheckBox.isChecked = true
-                }
-                else {
+                    if (holder.itemCheckBox.isChecked) {
+                        holder.itemCheckBox.isChecked = false
+                        selectedList[position] = false
+                    } else {
+                        holder.itemCheckBox.isChecked = true
+                        selectedList[position] = true
+                    }
+                    itemClick.onItemClick(it, position, item)
+                } else {
                     val bundle: Bundle = Bundle()
                     if (type == PictureFragment.TYPE_PICTURE_FRAGMENT) {
                         bundle.putInt("position", item.position)
@@ -101,13 +110,11 @@ class ItemAdapter(val context: Context, val type: Int) :
             }
 
             holder.item_holder.setOnLongClickListener {
-//                itemClick.onItemLongClick(it, position)
-                if(!isSelectedMode) {
-                    isSelectedMode = true
-                    this.notifyDataSetChanged()
+                itemClick.onItemLongClick(it, position, item)
+                if (!isSelectedMode) {
+                    toSelectedMode()
                     true
-                }
-                else false
+                } else false
             }
         }
     }
@@ -124,5 +131,10 @@ class ItemAdapter(val context: Context, val type: Int) :
 //        if (isHeader(position)) return TYPE_HEADER
 //        else return TYPE_ITEM
         return position
+    }
+
+    fun toSelectedMode() {
+        isSelectedMode = true;
+        this.notifyDataSetChanged()
     }
 }

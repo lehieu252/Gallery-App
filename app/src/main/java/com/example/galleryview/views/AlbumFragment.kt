@@ -28,6 +28,7 @@ class AlbumFragment : Fragment() {
     }
 
     private fun showAlbums() {
+        context?.let { viewModel.getAllAlbums(it) }
         val adapter = context?.let { AlbumAdapter(it) }
         val layoutManager = GridLayoutManager(context, 3)
         binding.gridView.layoutManager = layoutManager

@@ -2,10 +2,14 @@ package com.example.galleryview
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.animation.TranslateAnimation
@@ -25,12 +29,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModelFactory: MainViewModelFactory
     private lateinit var viewModel: MainViewModel
 
-    @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val myVersion = Build.VERSION.SDK_INT;
-        if (myVersion > Build.VERSION_CODES.M) {
+        if (myVersion > Build.VERSION_CODES.LOLLIPOP) {
             if (!checkSelfPermission()) {
                 requestPermissions(
                     arrayOf(
@@ -38,6 +42,14 @@ class MainActivity : AppCompatActivity() {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                     ), 101
                 )
+            }
+            if (myVersion == Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                    val uri: Uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                }
             }
         }
         viewModelFactory = MainViewModelFactory()
@@ -67,10 +79,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.getAllItems(this)
-        viewModel.getAllItemView(this)
-        viewModel.getAllAlbums(this)
-
         viewModel.hideBottomNav.observe(this, {
             if (it) {
                 binding.bottomNavigation.visibility = View.GONE
@@ -87,6 +95,7 @@ class MainActivity : AppCompatActivity() {
                 binding.bottomNavigation.visibility = View.VISIBLE
             }
         })
+
         onClickBottomButton()
     }
 

@@ -42,6 +42,7 @@ class ViewFragment : Fragment() {
         Log.d("position_type", "$curPos + $type")
         viewPagerAdapter = activity?.let { ViewPAdapter(it) }!!
         if (type == PictureFragment.TYPE_PICTURE_FRAGMENT) {
+            context?.let { viewModel.getAllItemView(it) }
             viewModel.itemView.observe(viewLifecycleOwner, Observer {
                 viewPagerAdapter.data = it
                 binding.viewPager.adapter = viewPagerAdapter

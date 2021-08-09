@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,6 +13,7 @@ import com.example.galleryview.models.Item
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
@@ -35,6 +35,10 @@ class MainViewModel : ViewModel(), CoroutineScope {
     val hideBottomNav: LiveData<Boolean>
         get() = _hideBottomNav
 
+    private var _hideFunctionNav = MutableLiveData<Boolean>()
+    val hideFunctionNav: LiveData<Boolean>
+        get() = _hideFunctionNav
+
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
@@ -50,6 +54,11 @@ class MainViewModel : ViewModel(), CoroutineScope {
     private var _albums = MutableLiveData<MutableList<Album>>()
     val albums: LiveData<MutableList<Album>>
         get() = _albums
+
+    private var _onLoading = MutableLiveData<Boolean>()
+    val onLoading: LiveData<Boolean>
+        get() = _onLoading
+
 
     fun openPictureFragment() {
         _onClickPicture.value = true
@@ -77,11 +86,20 @@ class MainViewModel : ViewModel(), CoroutineScope {
         _hideBottomNav.value = false;
     }
 
+    fun hideFunctionNavigation() {
+        _hideFunctionNav.value = true;
+    }
+
+    fun showFunctionNavigation() {
+        _hideFunctionNav.value = false;
+    }
+
+
     private fun loadAlbums(context: Context): MutableList<Album> {
         val list = mutableListOf<Item>()
         list.addAll(loadImages(context))
         list.addAll(loadVideos(context))
-        val map = list.groupBy({ it.name })
+        val map = list.groupBy { it.name }
         val listAlbumName = map.keys
         val listAlbumCount = map.values
         val listAlbum = mutableListOf<Album>()
@@ -95,7 +113,6 @@ class MainViewModel : ViewModel(), CoroutineScope {
             listAlbum[index].itemCount = value.size
             value.sortedByDescending { it.createdDate }
             listAlbum[index].lastItemPath = value[0].path
-//            Log.d("Album", value.toString())
         }
         return listAlbum
     }
@@ -178,6 +195,7 @@ class MainViewModel : ViewModel(), CoroutineScope {
     @SuppressLint("SimpleDateFormat")
     private fun getAllItemsAndHeaders(context: Context): ArrayList<Item> {
         val list = getAllImagesAndVideos(context)
+        if (list.size == 0) return list
         val date = Date(list[0].createdDate * 1000)
         val formatter = SimpleDateFormat("dd/MM/yyyy")
         val firstHeader = Item(formatter.format(date), list[0].createdDate - 1, null, 0)
@@ -203,6 +221,43 @@ class MainViewModel : ViewModel(), CoroutineScope {
             i++;
         }
         return list
+    }
+
+    private fun deleteItem(context: Context, item: Item) {
+        val uri: Uri
+        val where: String
+        if (item.isVideo) {
+            uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            where = "${MediaStore.MediaColumns.DATA} = ?"
+        } else {
+            uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            where = "${MediaStore.MediaColumns.DATA} = ?"
+        }
+        context.contentResolver.delete(uri, where, arrayOf(item.path))
+    }
+
+    fun onLoadingDialog(){
+        _onLoading.value = true
+    }
+
+    fun deleteSelectedItem(context: Context, list: ArrayList<Item>) {
+        viewModelScope.launch {
+            val executor = Executors.newFixedThreadPool(10)
+            for (item in list) {
+                val worker = Runnable {
+                    deleteItem(context, item)
+                }
+                executor.execute(worker)
+            }
+            executor.shutdown()
+            while (!executor.isTerminated){
+
+            }
+            if(executor.isTerminated) {
+                _itemList.value = getAllItemsAndHeaders(context)
+                _onLoading.value = false
+            }
+        }
     }
 
 

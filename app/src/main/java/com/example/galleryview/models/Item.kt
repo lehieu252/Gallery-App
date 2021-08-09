@@ -6,7 +6,6 @@ data class Item(
     var path: String?,
     var duration: Int
 ) {
-    var isSelected = false
     var isHeader = false
     var isVideo = false
     var position = -1

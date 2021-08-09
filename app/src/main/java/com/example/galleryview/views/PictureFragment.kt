@@ -36,6 +36,7 @@ class PictureFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_picture, container, false)
         dialog = activity?.let { LoadingDialog(it) }!!
+
         setUpGridView()
         onMenuClickItem()
         onclickFunctionNavigation()
@@ -59,14 +60,7 @@ class PictureFragment : Fragment() {
             }
         })
 
-        viewModel.onLoading.observe(viewLifecycleOwner, {
-            if (it) {
-                dialog.start()
-            }
-            else{
-                dialog.dismiss()
-            }
-        })
+
         return binding.root
     }
 

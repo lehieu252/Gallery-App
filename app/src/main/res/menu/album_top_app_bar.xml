@@ -8,24 +8,11 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/edit"
+        android:id="@+id/aEdit"
         android:title="@string/edit"
         app:showAsAction="never" />
     <item
-        android:id="@+id/select_all"
+        android:id="@+id/aSelectAll"
         android:title="@string/select_all"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/create_album"
-        android:title="@string/create_album"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/create_group"
-        android:title="@string/create_group"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/hide_album"
-        android:title="@string/hide_or_unhide"
         app:showAsAction="never" />
 </menu>

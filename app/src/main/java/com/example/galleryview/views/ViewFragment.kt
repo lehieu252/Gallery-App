@@ -25,6 +25,7 @@ class ViewFragment : Fragment() {
 
     private lateinit var viewPagerAdapter: ViewPAdapter
     private lateinit var bundle: Bundle
+    private var type = 1
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,18 +38,19 @@ class ViewFragment : Fragment() {
     }
 
     private fun showItemView() {
-        val type = bundle.getInt("type")
+        type = bundle.getInt("type")
+        Log.d("type",type.toString())
         val curPos = bundle.getInt("position")
         Log.d("position_type", "$curPos + $type")
         viewPagerAdapter = activity?.let { ViewPAdapter(it) }!!
         if (type == PictureFragment.TYPE_PICTURE_FRAGMENT) {
+            viewModel.hideBottomNavigation()
             context?.let { viewModel.getAllItemView(it) }
             viewModel.itemView.observe(viewLifecycleOwner, Observer {
                 viewPagerAdapter.data = it
                 binding.viewPager.adapter = viewPagerAdapter
                 binding.viewPager.setCurrentItem(curPos, false)
             })
-            viewModel.hideBottomNavigation()
         } else if (type == AlbumViewFragment.TYPE_ALBUM_FRAGMENT) {
             val albumName = bundle.getString("album_name")
             albumViewModelFactory = AlbumViewModelFactory(albumName!!)
@@ -66,7 +68,9 @@ class ViewFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.showBottomNavigation()
+        if(type == 1){
+            viewModel.showBottomNavigation()
+        }
     }
 }
 

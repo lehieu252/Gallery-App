@@ -39,6 +39,8 @@ class ItemAdapter(val context: Context, val type: Int) :
     var albumName: String = ""
     var isSelectedMode = false
     var selectedList = SparseBooleanArray(data.size)
+
+
     private lateinit var itemClick: OnItemClick
 
     fun setItemClick(onItemClick: OnItemClick) {

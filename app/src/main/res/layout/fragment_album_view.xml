@@ -1,42 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".views.AlbumFragment">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="0dp"
             android:orientation="vertical">
-
-<!--            <RelativeLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="200dp"-->
-<!--                android:background="@color/white"-->
-<!--                app:layout_scrollFlags="scroll|enterAlways|snap">-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/album_name_top"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_centerInParent="true"-->
-<!--                    android:text="@string/albums"-->
-<!--                    android:textColor="@color/black"-->
-<!--                    android:textSize="35sp" />-->
-<!--                <TextView-->
-<!--                    android:id="@+id/album_detail_count"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="188 images 23 videos"-->
-<!--                    android:textSize="12sp"-->
-<!--                    android:layout_marginTop="20dp"-->
-<!--                    android:layout_below="@+id/album_name_top"-->
-<!--                    android:layout_centerHorizontal="true"/>-->
-
-<!--            </RelativeLayout>-->
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/topAppBar"
@@ -54,11 +30,22 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
+            android:layout_below="@id/app_bar"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-        <!--        <androidx.recyclerview.widget.RecyclerView-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            app:layout_anchor="@id/topAppBar"-->
-        <!--            app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/function_menu"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="51dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="-1dp"
+            android:visibility="gone"
+            app:backgroundTint="@color/white"
+            app:itemIconSize="20dp"
+            app:itemIconTint="#535353"
+            app:itemTextColor="#535353"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/function_menu" />
+    </RelativeLayout>
 </layout>

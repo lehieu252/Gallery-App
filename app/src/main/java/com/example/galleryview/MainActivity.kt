@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        viewModel.showBottomNavigation()
         viewModel.hideBottomNav.observe(this, {
             if (it) {
                 binding.bottomNavigation.visibility = View.GONE

@@ -24,6 +24,11 @@ class AlbumFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_album, container, false)
         showAlbums()
+        viewModel.hideBottomNav.observe(viewLifecycleOwner,{
+            if(it){
+                viewModel.showBottomNavigation()
+            }
+        })
         return binding.root
     }
 

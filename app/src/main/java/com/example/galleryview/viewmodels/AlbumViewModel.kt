@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.galleryview.models.Album
 import com.example.galleryview.models.Item
 import kotlinx.coroutines.*
+import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
@@ -25,6 +26,18 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
     private var _album = MutableLiveData<Album>()
     val album: LiveData<Album>
         get() = _album
+
+    private var _hideFunctionNav = MutableLiveData<Boolean>()
+    val hideFunctionNav: LiveData<Boolean>
+        get() = _hideFunctionNav
+
+    fun hideFunctionNavigation() {
+        _hideFunctionNav.value = true;
+    }
+
+    fun showFunctionNavigation() {
+        _hideFunctionNav.value = false;
+    }
 
 
     private fun loadImages(context: Context): ArrayList<Item> {
@@ -109,6 +122,39 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
             _itemList.value = withContext(Dispatchers.IO) {
                 getItemsByAlbumName(context)
             }!!
+        }
+    }
+
+
+    private fun deleteItem(context: Context, item: Item) {
+        val uri: Uri
+        val where: String
+        if (item.isVideo) {
+            uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            where = "${MediaStore.MediaColumns.DATA} = ?"
+        } else {
+            uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            where = "${MediaStore.MediaColumns.DATA} = ?"
+        }
+        context.contentResolver.delete(uri, where, arrayOf(item.path))
+    }
+
+    fun deleteSelectedItem(context: Context, list: ArrayList<Item>) {
+        viewModelScope.launch {
+            val executor = Executors.newFixedThreadPool(10)
+            for (item in list) {
+                val worker = Runnable {
+                    deleteItem(context, item)
+                }
+                executor.execute(worker)
+            }
+            executor.shutdown()
+            while (!executor.isTerminated){
+
+            }
+            if(executor.isTerminated) {
+                _itemList.value = getItemsByAlbumName(context)
+            }
         }
     }
 }

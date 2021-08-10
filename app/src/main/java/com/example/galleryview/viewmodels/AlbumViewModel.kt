@@ -1,5 +1,6 @@
 package com.example.galleryview.viewmodels
 
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
@@ -41,58 +42,81 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
 
 
     private fun loadImages(context: Context): ArrayList<Item> {
-        val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
         val projection = arrayOf(
-            MediaStore.MediaColumns.DATA,
+            MediaStore.Images.Media._ID,
             MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_ADDED
+            MediaStore.Images.Media.DATE_ADDED,
+            MediaStore.Images.Media.RELATIVE_PATH,
+            MediaStore.MediaColumns.DATA,
         )
         val selection = "${MediaStore.Images.Media.BUCKET_DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(albumName)
         val query =
-            context.contentResolver.query(uri, projection, selection, selectionArgs, null)
+            context.contentResolver.query(collection, projection, selection, selectionArgs, null)
         var listOfImages = ArrayList<Item>()
         query.use { cursor ->
-            val pathColumn = cursor?.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-            val nameColumn =
-                cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-            val dateColumn = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
-            while (cursor!!.moveToNext()) {
-                val name = nameColumn?.let { cursor.getString(it) }
-                val date = dateColumn?.let { cursor.getLong(it) }
-                val path = pathColumn?.let { cursor.getString(pathColumn) }
-                listOfImages.add(Item(name, date!!, path, 0))
+            val idColumn = cursor!!.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+            val albumNameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+            val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+            val relativePathColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH)
+            val absolutePathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idColumn)
+                val contentUri: Uri =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                val albumName = cursor.getString(albumNameColumn)
+                val date = cursor.getLong(dateColumn)
+                val relativePath = cursor.getString(relativePathColumn)
+                val absolutePath = cursor.getString(absolutePathColumn)
+                listOfImages.add(Item(id, contentUri, albumName, date, relativePath, absolutePath))
             }
         }
         return listOfImages
     }
 
     private fun loadVideos(context: Context): ArrayList<Item> {
-        val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+
         val projection = arrayOf(
-            MediaStore.MediaColumns.DATA,
+            MediaStore.Video.Media._ID,
             MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
             MediaStore.Video.Media.DATE_ADDED,
+            MediaStore.Video.Media.RELATIVE_PATH,
+            MediaStore.MediaColumns.DATA,
             MediaStore.Video.Media.DURATION
         )
         val selection = "${MediaStore.Video.Media.BUCKET_DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(albumName)
         val query =
-            context.contentResolver.query(uri, projection, selection, selectionArgs, null)
+            context.contentResolver.query(collection, projection, selection, selectionArgs, null)
         var listOfVideos = ArrayList<Item>()
         query.use { cursor ->
-            val pathColumn = cursor?.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-            val nameColumn =
-                cursor?.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME)
-            val dateColumn = cursor?.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
-            val durationColumn = cursor?.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
-            while (cursor!!.moveToNext()) {
-                val name = nameColumn?.let { cursor.getString(it) }
-                val date = dateColumn?.let { cursor.getLong(it) }
-                val path = pathColumn?.let { cursor.getString(it) }
-                val duration = durationColumn?.let { cursor.getInt(it) }
-                val item = Item(name, date!!, path, duration!!)
+            val idColumn = cursor!!.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+            val albumNameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME)
+            val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
+            val relativePathColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.RELATIVE_PATH)
+            val absolutePathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idColumn)
+                val contentUri: Uri =
+                    ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
+                val albumName = cursor.getString(albumNameColumn)
+                val date = cursor.getLong(dateColumn)
+                val relativePath = cursor.getString(relativePathColumn)
+                val absolutePath = cursor.getString(absolutePathColumn)
+                val duration = cursor.getInt(durationColumn)
+
+                val item = Item(id, contentUri, albumName, date, relativePath, absolutePath)
                 item.isVideo = true
+                item.duration = duration
                 listOfVideos.add(item)
             }
         }
@@ -127,16 +151,7 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
 
 
     private fun deleteItem(context: Context, item: Item) {
-        val uri: Uri
-        val where: String
-        if (item.isVideo) {
-            uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            where = "${MediaStore.MediaColumns.DATA} = ?"
-        } else {
-            uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            where = "${MediaStore.MediaColumns.DATA} = ?"
-        }
-        context.contentResolver.delete(uri, where, arrayOf(item.path))
+        item.uri?.let { context.contentResolver.delete(it, null, null) }
     }
 
     fun deleteSelectedItem(context: Context, list: ArrayList<Item>) {
@@ -149,10 +164,9 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
                 executor.execute(worker)
             }
             executor.shutdown()
-            while (!executor.isTerminated){
-
+            while (!executor.isTerminated) {
             }
-            if(executor.isTerminated) {
+            if (executor.isTerminated) {
                 _itemList.value = getItemsByAlbumName(context)
             }
         }

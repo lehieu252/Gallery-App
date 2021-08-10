@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.galleryview.R
 import com.example.galleryview.adapters.AlbumAdapter
@@ -48,8 +49,15 @@ class SelectedAlbumFragment : Fragment() {
             override fun onItemClick(view: View, position: Int, album: Album) {
                 if(adapter.type == TYPE_SELECT){
                     Toast.makeText(context,"Select ${album.name}", Toast.LENGTH_SHORT).show()
+                    viewModel.moveItem(context!!,viewModel.selectedList[0],album)
+                    findNavController().navigate(R.id.action_selectedAlbumFragment_to_pictureFragment)
                 }
             }
         })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.showBottomNavigation()
     }
 }

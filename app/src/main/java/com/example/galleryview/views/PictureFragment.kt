@@ -24,7 +24,7 @@ class PictureFragment : Fragment() {
     private lateinit var binding: FragmentPictureBinding
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var itemAdapter: ItemAdapter
-    private var selectedList = ArrayList<Item>()
+//    private var selectedList = ArrayList<Item>()
     private lateinit var dialog: LoadingDialog
 
     companion object {
@@ -37,7 +37,6 @@ class PictureFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_picture, container, false)
         dialog = activity?.let { LoadingDialog(it) }!!
-
         setUpGridView()
         onMenuClickItem()
         onclickFunctionNavigation()
@@ -90,16 +89,16 @@ class PictureFragment : Fragment() {
             override fun onItemClick(view: View, position: Int, item: Item) {
                 if (itemAdapter.isSelectedMode) {
                     if (itemAdapter.selectedList[position]) {
-                        selectedList.add(item)
+                        viewModel.selectedList.add(item)
                     } else {
-                        selectedList.remove(item)
+                        viewModel.selectedList.remove(item)
                     }
-                    Log.d("selected", selectedList.toString())
+                    Log.d("selected", viewModel.selectedList.toString())
                 }
             }
 
             override fun onItemLongClick(view: View, position: Int, item: Item) {
-                selectedList.clear()
+                viewModel.selectedList.clear()
                 itemAdapter.selectedList.clear()
                 viewModel.hideBottomNavigation()
                 viewModel.showFunctionNavigation()
@@ -143,30 +142,32 @@ class PictureFragment : Fragment() {
         binding.functionMenu.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.copy -> {
-                    if (selectedList.size == 0) {
+                    if (viewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to copy", Toast.LENGTH_SHORT).show()
                     } else {
+                        viewModel.hideFunctionNavigation()
                         findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment)
                     }
                     true
                 }
                 R.id.move -> {
-                    if (selectedList.size == 0) {
+                    if (viewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to move", Toast.LENGTH_SHORT).show()
                     } else {
+                        viewModel.hideFunctionNavigation()
                         findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment)
                     }
                     true
                 }
                 R.id.delete -> {
-                    if (selectedList.size == 0) {
+                    if (viewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to delete", Toast.LENGTH_SHORT).show()
                     } else {
                         dialog.start()
-                        context?.let { it1 -> viewModel.deleteSelectedItem(it1, selectedList) }
+                        context?.let { it1 -> viewModel.deleteSelectedItem(it1, viewModel.selectedList) }
                         viewModel.hideFunctionNavigation()
                         viewModel.showBottomNavigation()
-                        selectedList.clear()
+                        viewModel.selectedList.clear()
                         itemAdapter.selectedList.clear()
                     }
                     true
@@ -175,7 +176,7 @@ class PictureFragment : Fragment() {
                     Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show()
                     viewModel.hideFunctionNavigation()
                     viewModel.showBottomNavigation()
-                    selectedList.clear()
+                    viewModel.selectedList.clear()
                     itemAdapter.selectedList.clear()
                     true
                 }

@@ -58,7 +58,7 @@ class ItemAdapter(val context: Context, val type: Int) :
         if (isHeader(position)) {
             holder.header_holder.visibility = View.VISIBLE
             holder.item_holder.visibility = View.GONE
-            holder.header.text = item.name
+            holder.header.text = item.albumName
         } else {
             if (isSelectedMode) {
                 holder.itemCheckBox.visibility = View.VISIBLE
@@ -81,7 +81,7 @@ class ItemAdapter(val context: Context, val type: Int) :
             } else {
                 holder.video_tag.visibility = View.GONE
             }
-            Glide.with(context).load(item.path).placeholder(R.color.grey).centerCrop()
+            Glide.with(context).load(item.absolutePath).placeholder(R.color.grey).centerCrop()
                 .transition(DrawableTransitionOptions.withCrossFade(100)).into(holder.item_image)
 
             holder.item_holder.setOnClickListener {

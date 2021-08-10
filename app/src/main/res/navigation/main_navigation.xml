@@ -57,5 +57,11 @@
         android:id="@+id/selectedAlbumFragment"
         android:name="com.example.galleryview.views.SelectedAlbumFragment"
         tools:layout="@layout/fragment_selected_album"
-        android:label="SelectedAlbumFragment" />
+        android:label="SelectedAlbumFragment" >
+        <action
+            android:id="@+id/action_selectedAlbumFragment_to_pictureFragment"
+            app:destination="@id/pictureFragment"
+            app:popUpTo="@id/pictureFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

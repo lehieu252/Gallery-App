@@ -23,7 +23,7 @@ class ViewPAdapter(val context: Activity) : PagerAdapter() {
         val view = context.layoutInflater.inflate(R.layout.item_view, container, false)
         val imgSlider = view.findViewById<ImageView>(R.id.image_slider)
         if (!data[position].isHeader) {
-            Glide.with(container.context).load(data[position].path).into(imgSlider)
+            Glide.with(container.context).load(data[position].absolutePath).into(imgSlider)
             container.addView(view)
         }
         return view

@@ -1,6 +1,8 @@
 package com.example.galleryview.viewmodels
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
@@ -59,6 +61,7 @@ class MainViewModel : ViewModel(), CoroutineScope {
     val onLoading: LiveData<Boolean>
         get() = _onLoading
 
+    var selectedList = ArrayList<Item>()
 
     fun openPictureFragment() {
         _onClickPicture.value = true
@@ -99,7 +102,7 @@ class MainViewModel : ViewModel(), CoroutineScope {
         val list = mutableListOf<Item>()
         list.addAll(loadImages(context))
         list.addAll(loadVideos(context))
-        val map = list.groupBy { it.name }
+        val map = list.groupBy { it.albumName }
         val listAlbumName = map.keys
         val listAlbumCount = map.values
         val listAlbum = mutableListOf<Album>()
@@ -108,64 +111,84 @@ class MainViewModel : ViewModel(), CoroutineScope {
                 listAlbum.add(Album(item))
             }
         }
-
         for ((index, value) in listAlbumCount.withIndex()) {
             listAlbum[index].itemCount = value.size
-            value.sortedByDescending { it.createdDate }
-            listAlbum[index].lastItemPath = value[0].path
+            listAlbum[index].lastItemPath = value[value.size - 1].absolutePath
+            listAlbum[index].relativePath = value[0].relativePath
         }
         return listAlbum
     }
 
     private fun loadImages(context: Context): ArrayList<Item> {
-        val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
         val projection = arrayOf(
-            MediaStore.MediaColumns.DATA,
+            MediaStore.Images.Media._ID,
             MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_ADDED
+            MediaStore.Images.Media.DATE_ADDED,
+            MediaStore.Images.Media.RELATIVE_PATH,
+            MediaStore.MediaColumns.DATA,
         )
-        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
-        val query = context.contentResolver.query(uri, projection, null, null, sortOrder)
+        val query = context.contentResolver.query(collection, projection, null, null, null)
         var listOfImages = ArrayList<Item>()
         query.use { cursor ->
-            val pathColumn = cursor?.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-            val nameColumn =
-                cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-            val dateColumn = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
-            while (cursor!!.moveToNext()) {
-                val name = nameColumn?.let { cursor.getString(it) }
-                val date = dateColumn?.let { cursor.getLong(it) }
-                val path = pathColumn?.let { cursor.getString(pathColumn) }
-                listOfImages.add(Item(name, date!!, path, 0))
+            val idColumn = cursor!!.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+            val albumNameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+            val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+            val relativePathColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH)
+            val absolutePathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idColumn)
+                val contentUri: Uri =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                val albumName = cursor.getString(albumNameColumn)
+                val date = cursor.getLong(dateColumn)
+                val relativePath = cursor.getString(relativePathColumn)
+                val absolutePath = cursor.getString(absolutePathColumn)
+                listOfImages.add(Item(id, contentUri, albumName, date, relativePath, absolutePath))
             }
         }
         return listOfImages
     }
 
     private fun loadVideos(context: Context): ArrayList<Item> {
-        val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+
         val projection = arrayOf(
-            MediaStore.MediaColumns.DATA,
+            MediaStore.Video.Media._ID,
             MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
             MediaStore.Video.Media.DATE_ADDED,
+            MediaStore.Video.Media.RELATIVE_PATH,
+            MediaStore.MediaColumns.DATA,
             MediaStore.Video.Media.DURATION
         )
-        val sortOrder = "${MediaStore.Video.Media.DATE_ADDED} DESC"
-        val query = context.contentResolver.query(uri, projection, null, null, sortOrder)
+        val query = context.contentResolver.query(collection, projection, null, null, null)
         var listOfVideos = ArrayList<Item>()
         query.use { cursor ->
-            val pathColumn = cursor?.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-            val nameColumn =
-                cursor?.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME)
-            val dateColumn = cursor?.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
-            val durationColumn = cursor?.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
-            while (cursor!!.moveToNext()) {
-                val name = nameColumn?.let { cursor.getString(it) }
-                val date = dateColumn?.let { cursor.getLong(it) }
-                val path = pathColumn?.let { cursor.getString(it) }
-                val duration = durationColumn?.let { cursor.getInt(it) }
-                val item = Item(name, date!!, path, duration!!)
+            val idColumn = cursor!!.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+            val albumNameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME)
+            val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
+            val relativePathColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.RELATIVE_PATH)
+            val absolutePathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idColumn)
+                val contentUri: Uri =
+                    ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
+                val albumName = cursor.getString(albumNameColumn)
+                val date = cursor.getLong(dateColumn)
+                val relativePath = cursor.getString(relativePathColumn)
+                val absolutePath = cursor.getString(absolutePathColumn)
+                val duration = cursor.getInt(durationColumn)
+
+                val item = Item(id, contentUri, albumName, date, relativePath, absolutePath)
                 item.isVideo = true
+                item.duration = duration
                 listOfVideos.add(item)
             }
         }
@@ -198,7 +221,8 @@ class MainViewModel : ViewModel(), CoroutineScope {
         if (list.size == 0) return list
         val date = Date(list[0].createdDate * 1000)
         val formatter = SimpleDateFormat("dd/MM/yyyy")
-        val firstHeader = Item(formatter.format(date), list[0].createdDate - 1, null, 0)
+        val firstHeader =
+            Item(-1, null, formatter.format(date), list[0].createdDate - 1, null, null)
         firstHeader.isHeader = true;
         list.add(0, firstHeader)
         var i = 1;
@@ -208,10 +232,12 @@ class MainViewModel : ViewModel(), CoroutineScope {
             if (!formatter.format(date1).equals(formatter.format(date2))) {
                 val headerItem =
                     Item(
+                        -1,
+                        null,
                         formatter.format(date2).toString(),
                         list[i + 1].createdDate + 1,
                         null,
-                        0
+                        null
                     )
                 headerItem.isHeader = true
                 list.add(i + 1, headerItem)
@@ -224,18 +250,43 @@ class MainViewModel : ViewModel(), CoroutineScope {
     }
 
     private fun deleteItem(context: Context, item: Item) {
-        val uri: Uri
-        val where: String
-        if (item.isVideo) {
-            uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            where = "${MediaStore.MediaColumns.DATA} = ?"
-        } else {
-            uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            where = "${MediaStore.MediaColumns.DATA} = ?"
-        }
-        context.contentResolver.delete(uri, where, arrayOf(item.path))
+        item.uri?.let { context.contentResolver.delete(it, null, null) }
     }
 
+
+    fun moveItem(context: Context, item: Item, album: Album) {
+        if (item.isVideo) {
+            val videoId = item.id
+            val selection = "${MediaStore.Video.Media._ID} = ?"
+            val selectionArgs = arrayOf(videoId.toString())
+            val updateVideo = ContentValues().apply {
+                put(MediaStore.Video.Media.RELATIVE_PATH, album.relativePath)
+            }
+            item.uri?.let {
+                context.contentResolver.update(
+                    it,
+                    updateVideo,
+                    selection,
+                    selectionArgs
+                )
+            }
+        } else {
+            val imageId = item.id
+            val selection = "${MediaStore.Images.Media._ID} = ?"
+            val selectionArgs = arrayOf(imageId.toString())
+            val updateImage = ContentValues().apply {
+                put(MediaStore.Images.Media.RELATIVE_PATH, album.relativePath)
+            }
+            item.uri?.let {
+                context.contentResolver.update(
+                    it,
+                    updateImage,
+                    selection,
+                    selectionArgs
+                )
+            }
+        }
+    }
 
     fun deleteSelectedItem(context: Context, list: ArrayList<Item>) {
         viewModelScope.launch {
@@ -247,10 +298,10 @@ class MainViewModel : ViewModel(), CoroutineScope {
                 executor.execute(worker)
             }
             executor.shutdown()
-            while (!executor.isTerminated){
+            while (!executor.isTerminated) {
 
             }
-            if(executor.isTerminated) {
+            if (executor.isTerminated) {
                 _itemList.value = getAllItemsAndHeaders(context)
                 _onLoading.value = false
             }

@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         viewModelFactory = MainViewModelFactory()
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
 //        viewModel.getAllAlbums(this)
 
         viewModel.onClickPicture.observe(this, {

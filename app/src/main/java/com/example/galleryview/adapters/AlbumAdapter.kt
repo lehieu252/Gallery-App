@@ -1,13 +1,11 @@
 package com.example.galleryview.adapters
 
 import android.content.Context
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -15,12 +13,18 @@ import com.example.galleryview.R
 import com.example.galleryview.models.Album
 import com.google.android.material.imageview.ShapeableImageView
 
-class AlbumAdapter(val context: Context) : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+class AlbumAdapter(val context: Context, val type: Int) :
+    RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
     var data = mutableListOf<Album>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
+
+    private lateinit var itemClick: ItemClick
+    fun setItemClick(itemClick: ItemClick) {
+        this.itemClick = itemClick
+    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val albumHolder = itemView.findViewById<LinearLayout>(R.id.album_holder)
@@ -42,17 +46,18 @@ class AlbumAdapter(val context: Context) : RecyclerView.Adapter<AlbumAdapter.Vie
         Glide.with(context).load(item.lastItemPath).placeholder(R.color.grey).centerCrop()
             .transition(DrawableTransitionOptions.withCrossFade(150)).into(holder.albumImage)
         holder.albumHolder.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("album_name", item.name)
-            it.findNavController().navigate(R.id.action_albumFragment_to_albumViewFragment, bundle)
+            itemClick.onItemClick(it, position, item)
         }
     }
-
     override fun getItemCount(): Int {
         return data.size
     }
 
     override fun getItemViewType(position: Int): Int {
         return position
+    }
+
+    interface ItemClick {
+        fun onItemClick(view: View, position: Int, album: Album)
     }
 }

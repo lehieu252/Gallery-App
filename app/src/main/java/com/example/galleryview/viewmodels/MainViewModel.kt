@@ -236,9 +236,6 @@ class MainViewModel : ViewModel(), CoroutineScope {
         context.contentResolver.delete(uri, where, arrayOf(item.path))
     }
 
-    fun onLoadingDialog(){
-        _onLoading.value = true
-    }
 
     fun deleteSelectedItem(context: Context, list: ArrayList<Item>) {
         viewModelScope.launch {

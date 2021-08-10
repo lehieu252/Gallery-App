@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.galleryview.R
 import com.example.galleryview.adapters.ItemAdapter
@@ -60,7 +61,11 @@ class PictureFragment : Fragment() {
             }
         })
 
-
+        viewModel.onLoading.observe(viewLifecycleOwner, {
+            if (!it) {
+                dialog.dismiss()
+            }
+        })
         return binding.root
     }
 
@@ -137,15 +142,27 @@ class PictureFragment : Fragment() {
     private fun onclickFunctionNavigation() {
         binding.functionMenu.setOnItemSelectedListener {
             when (it.itemId) {
+                R.id.copy -> {
+                    if (selectedList.size == 0) {
+                        Toast.makeText(context, "Select file to copy", Toast.LENGTH_SHORT).show()
+                    } else {
+                        findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment)
+                    }
+                    true
+                }
                 R.id.move -> {
-                    Toast.makeText(context, "Move", Toast.LENGTH_SHORT).show()
+                    if (selectedList.size == 0) {
+                        Toast.makeText(context, "Select file to move", Toast.LENGTH_SHORT).show()
+                    } else {
+                        findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment)
+                    }
                     true
                 }
                 R.id.delete -> {
                     if (selectedList.size == 0) {
                         Toast.makeText(context, "Select file to delete", Toast.LENGTH_SHORT).show()
                     } else {
-                        viewModel.onLoadingDialog()
+                        dialog.start()
                         context?.let { it1 -> viewModel.deleteSelectedItem(it1, selectedList) }
                         viewModel.hideFunctionNavigation()
                         viewModel.showBottomNavigation()

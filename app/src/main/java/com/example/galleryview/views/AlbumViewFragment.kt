@@ -128,7 +128,6 @@ class AlbumViewFragment : Fragment() {
                     if (selectedList.size == 0) {
                         Toast.makeText(context, "Select file to delete", Toast.LENGTH_SHORT).show()
                     } else {
-                        mainViewModel.onLoadingDialog()
                         context?.let { it1 -> albumViewModel.deleteSelectedItem(it1, selectedList) }
                         albumViewModel.hideFunctionNavigation()
                         selectedList.clear()

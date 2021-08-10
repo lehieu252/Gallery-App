@@ -17,6 +17,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_pictureFragment_to_selectedAlbumFragment"
+            app:destination="@id/selectedAlbumFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumFragment"
@@ -50,4 +53,9 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
+    <fragment
+        android:id="@+id/selectedAlbumFragment"
+        android:name="com.example.galleryview.views.SelectedAlbumFragment"
+        tools:layout="@layout/fragment_selected_album"
+        android:label="SelectedAlbumFragment" />
 </navigation>

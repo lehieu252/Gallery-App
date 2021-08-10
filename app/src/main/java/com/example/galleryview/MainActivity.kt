@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.view.animation.TranslateAnimation
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -52,9 +53,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+
+//        if (myVersion >= 21) {
+//            val window = this.window
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+//            window.statusBarColor = this.resources.getColor(R.color.white)
+//        }
         viewModelFactory = MainViewModelFactory()
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+//        viewModel.getAllAlbums(this)
+
         viewModel.onClickPicture.observe(this, {
             if (it) {
                 binding.picturesBtn.typeface = Typeface.DEFAULT_BOLD
@@ -96,7 +108,6 @@ class MainActivity : AppCompatActivity() {
                 binding.bottomNavigation.visibility = View.VISIBLE
             }
         })
-
         onClickBottomButton()
     }
 

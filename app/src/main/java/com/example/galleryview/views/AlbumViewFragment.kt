@@ -40,7 +40,9 @@ class AlbumViewFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_album_view, container, false)
         bundle = requireArguments()
         albumName = bundle.getString("album_name").toString()
-        mainViewModel.hideBottomNavigation()
+        if(mainViewModel.hideBottomNav.value != true) {
+            mainViewModel.hideBottomNavigation()
+        }
         albumViewModel =
             ViewModelProvider(this).get(AlbumViewModel::class.java)
         context?.let { albumViewModel.getItemsByAlbum(it, albumName) }
@@ -153,7 +155,6 @@ class AlbumViewFragment : Fragment() {
                             )
                         }
                         albumViewModel.hideFunctionNavigation()
-                        mainViewModel.showBottomNavigation()
                         mainViewModel.selectedList.clear()
                         itemAdapter.selectedList.clear()
                         context?.let { it1 -> albumViewModel.getItemsByAlbum(it1, albumName) }
@@ -163,7 +164,6 @@ class AlbumViewFragment : Fragment() {
                 R.id.cancel -> {
                     Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show()
                     albumViewModel.hideFunctionNavigation()
-                    mainViewModel.showBottomNavigation()
                     mainViewModel.selectedList.clear()
                     itemAdapter.selectedList.clear()
                     true
@@ -176,19 +176,25 @@ class AlbumViewFragment : Fragment() {
     private fun onMenuClickItem() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.aEdit -> {
+                R.id.pEdit -> {
                     itemAdapter.toSelectedMode()
                     albumViewModel.showFunctionNavigation()
                     true
                 }
-                R.id.aSelectAll -> {
-                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT)
-                        .show()
+                R.id.pSelectAll -> {
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
                     true
                 }
-                R.id.aSearch -> {
-                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT)
-                        .show()
+                R.id.pCreate -> {
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.pSlide -> {
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.pSearch ->{
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false

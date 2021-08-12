@@ -59,19 +59,10 @@ class MainViewModel : ViewModel(), CoroutineScope {
         get() = _albums
 
 
-//    private var _itemListByAlbum = MutableLiveData<ArrayList<Item>>()
-//    val itemListByAlbum: LiveData<ArrayList<Item>>
-//        get() = _itemListByAlbum
-
     private var _onLoading = MutableLiveData<Boolean>()
     val onLoading: LiveData<Boolean>
         get() = _onLoading
 
-
-
-    private var _album = MutableLiveData<Album?>()
-    val album: LiveData<Album?>
-        get() = _album
 
     var selectedList = ArrayList<Item>()
     var selectedAlbum = ArrayList<Album>()
@@ -222,7 +213,6 @@ class MainViewModel : ViewModel(), CoroutineScope {
             }
             executor.shutdown()
             while (!executor.isTerminated) {
-
             }
             if (executor.isTerminated) {
                 _itemList.value = getAllItemsAndHeaders(context)
@@ -231,7 +221,23 @@ class MainViewModel : ViewModel(), CoroutineScope {
         }
     }
 
-
+    fun deleteSelectedAlbum(context: Context, list: ArrayList<Album>){
+        viewModelScope.launch {
+            val executor = Executors.newFixedThreadPool(5)
+            for(album in list){
+                val worker = Runnable {
+                    FileUtil.deleteAlbum(context,album)
+                }
+                executor.execute(worker)
+            }
+            executor.shutdown()
+            while (!executor.isTerminated) {
+            }
+            if(executor.isTerminated) {
+                _albums.value = FileUtil.getAllAlbums(context)
+            }
+        }
+    }
     fun getAllItems(context: Context) {
         viewModelScope.launch(Dispatchers.Main) {
             _itemList.value = withContext(Dispatchers.IO) {

@@ -21,14 +21,14 @@ class FileUtil {
         }
 
         fun copyItem(context: Context, item: Item, album: Album) {
-            val newFile = File(album.relativePath, item.name)
+            val newFile = File(album.absolutePath, item.name)
             if (newFile.exists()) {
                 return
             } else {
                 if (item.isVideo) {
                     File(item.absolutePath).copyTo(newFile, false)
                     val newImage = ContentValues().apply {
-                        put(MediaStore.Video.Media.DATA, "${album.relativePath}/${item.name}")
+                        put(MediaStore.Video.Media.DATA, "${album.absolutePath}/${item.name}")
                         put(MediaStore.Video.Media.DURATION, item.duration)
                     }
                     context.contentResolver.insert(
@@ -38,7 +38,7 @@ class FileUtil {
                 } else {
                     File(item.absolutePath).copyTo(newFile, false)
                     val newImage = ContentValues().apply {
-                        put(MediaStore.Images.Media.DATA, "${album.relativePath}/${item.name}")
+                        put(MediaStore.Images.Media.DATA, "${album.absolutePath}/${item.name}")
                     }
                     context.contentResolver.insert(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -49,14 +49,14 @@ class FileUtil {
         }
 
         fun moveItem(context: Context, item: Item, album: Album) {
-            val newFile = File(album.relativePath, item.name)
+            val newFile = File(album.absolutePath, item.name)
             if (newFile.exists()) {
                 return
             } else {
                 if (item.isVideo) {
                     File(item.absolutePath).copyTo(newFile, false)
                     val newVideo = ContentValues().apply {
-                        put(MediaStore.Video.Media.DATA, "${album.relativePath}/${item.name}")
+                        put(MediaStore.Video.Media.DATA, "${album.absolutePath}/${item.name}")
                         put(MediaStore.Video.Media.DURATION, item.duration)
                     }
                     context.contentResolver.insert(
@@ -67,7 +67,7 @@ class FileUtil {
                     File(item.absolutePath).copyTo(newFile, false)
                     deleteItem(context, item)
                     val newImage = ContentValues().apply {
-                        put(MediaStore.Images.Media.DATA, "${album.relativePath}/${item.name}")
+                        put(MediaStore.Images.Media.DATA, "${album.absolutePath}/${item.name}")
                     }
                     context.contentResolver.insert(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -93,7 +93,7 @@ class FileUtil {
             for ((index, value) in listAlbumCount.withIndex()) {
                 listAlbum[index].itemCount = value.size
                 listAlbum[index].lastItemPath = value[value.size - 1].absolutePath
-                listAlbum[index].relativePath =
+                listAlbum[index].absolutePath =
                     value[0].absolutePath?.let {
                         value[0].absolutePath?.substring(
                             0,
@@ -193,7 +193,7 @@ class FileUtil {
             return listOfVideos
         }
 
-         fun getImagesByAlbum(context: Context, albumName: String): ArrayList<Item> {
+        fun getImagesByAlbum(context: Context, albumName: String): ArrayList<Item> {
             val collection =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     MediaStore.Images.Media.getContentUri(
@@ -244,7 +244,7 @@ class FileUtil {
             return listOfImages
         }
 
-         fun getVideosByAlbum(context: Context, albumName: String): ArrayList<Item> {
+        fun getVideosByAlbum(context: Context, albumName: String): ArrayList<Item> {
             val collection =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     MediaStore.Video.Media.getContentUri(
@@ -300,8 +300,36 @@ class FileUtil {
             }
             return listOfVideos
         }
+
+        fun deleteAlbum(context: Context, album: Album) {
+            val imgCollection =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Images.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL
+                    )
+                } else {
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                }
+
+            val videoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Video.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL
+                )
+            } else {
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            }
+
+            context.contentResolver.delete(
+                imgCollection, "${MediaStore.Images.Media.BUCKET_DISPLAY_NAME} = ?", arrayOf(
+                    album.name
+                )
+            )
+
+            context.contentResolver.delete(
+                videoCollection, "${MediaStore.Video.Media.BUCKET_DISPLAY_NAME} = ?", arrayOf(
+                    album.name
+                )
+            )
+        }
     }
-
-
-
 }

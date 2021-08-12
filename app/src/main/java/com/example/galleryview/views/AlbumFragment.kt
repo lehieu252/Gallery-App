@@ -1,6 +1,7 @@
 package com.example.galleryview.views
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,13 +23,16 @@ class AlbumFragment : Fragment() {
     private lateinit var binding: FragmentAlbumBinding
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: AlbumAdapter
-
-
+    private lateinit var createAlbumDialog: CreateAlbumDialog
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_album, container, false)
+        if (viewModel.hideBottomNav.value != false) {
+            viewModel.showBottomNavigation()
+        }
+        createAlbumDialog = activity?.let { CreateAlbumDialog(it) }!!
         showAlbums()
         onMenuClickItem()
         onclickFunctionNavigation()
@@ -80,6 +84,7 @@ class AlbumFragment : Fragment() {
                         } else {
                             viewModel.selectedAlbum.remove(album)
                         }
+                        Log.d("selected_album", viewModel.selectedAlbum.toString())
                     }
                 }
             }
@@ -119,6 +124,10 @@ class AlbumFragment : Fragment() {
                         .show()
                     true
                 }
+                R.id.aCreate -> {
+                    createAlbumDialog.show()
+                    true
+                }
                 else -> false
             }
         }
@@ -143,13 +152,13 @@ class AlbumFragment : Fragment() {
                     } else {
                         Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
                         context?.let { it1 ->
-                            viewModel.deleteSelectedItem(
+                            viewModel.deleteSelectedAlbum(
                                 it1,
-                                viewModel.selectedList
+                                viewModel.selectedAlbum
                             )
                         }
+                        viewModel.hideAlbumFNav()
                         viewModel.showBottomNavigation()
-                        viewModel.hideBottomNavigation()
                         viewModel.selectedList.clear()
                         adapter.selectedList.clear()
                     }

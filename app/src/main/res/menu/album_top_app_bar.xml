@@ -15,4 +15,8 @@
         android:id="@+id/aSelectAll"
         android:title="@string/select_all"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/aCreate"
+        android:title="@string/create_album"
+        app:showAsAction="never" />
 </menu>

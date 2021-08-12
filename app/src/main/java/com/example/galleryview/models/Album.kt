@@ -5,5 +5,5 @@ data class Album(val name: String) {
     var lastItemPath: String? = null
     var imagesCount = 0;
     var videosCount = 0;
-    var relativePath: String? = null
+    var absolutePath: String? = null
 }

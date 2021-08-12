@@ -16,23 +16,23 @@ import kotlinx.coroutines.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
-class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
+class AlbumViewModel : ViewModel(), CoroutineScope {
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
-    private var _itemList = MutableLiveData<ArrayList<Item>>()
-    val itemList: LiveData<ArrayList<Item>>
-        get() = _itemList
-
+    private var _hideFunctionNav = MutableLiveData<Boolean>()
+    val hideFunctionNav: LiveData<Boolean>
+        get() = _hideFunctionNav
 
     private var _album = MutableLiveData<Album>()
     val album: LiveData<Album>
         get() = _album
 
-    private var _hideFunctionNav = MutableLiveData<Boolean>()
-    val hideFunctionNav: LiveData<Boolean>
-        get() = _hideFunctionNav
+
+    private var _itemListByAlbum = MutableLiveData<ArrayList<Item>>()
+    val itemListByAlbum: LiveData<ArrayList<Item>>
+        get() = _itemListByAlbum
 
     fun hideFunctionNavigation() {
         _hideFunctionNav.value = true;
@@ -42,12 +42,11 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
         _hideFunctionNav.value = false;
     }
 
-    var selectedList = ArrayList<Item>()
 
-    private fun getItemsByAlbumName(context: Context): ArrayList<Item> {
+    private fun getItemsByAlbumName(context: Context, albumName: String): ArrayList<Item> {
         val list = ArrayList<Item>()
-        val listImage = FileUtil.getImagesByAlbum(context,albumName)
-        val listVideo = FileUtil.getVideosByAlbum(context,albumName)
+        val listImage = FileUtil.getImagesByAlbum(context, albumName)
+        val listVideo = FileUtil.getVideosByAlbum(context, albumName)
         list.addAll(listImage)
         list.addAll(listVideo)
         list.sortByDescending { it.createdDate }
@@ -62,67 +61,13 @@ class AlbumViewModel(val albumName: String) : ViewModel(), CoroutineScope {
         return list
     }
 
-    fun getItemsByAlbum(context: Context) {
+    fun getItemsByAlbum(context: Context, albumName: String) {
         viewModelScope.launch(Dispatchers.Main) {
-            _itemList.value = withContext(Dispatchers.IO) {
-                getItemsByAlbumName(context)
+            _itemListByAlbum.value = withContext(Dispatchers.IO) {
+                getItemsByAlbumName(context, albumName)
             }!!
         }
     }
 
-
-    fun deleteSelectedItem(context: Context, list: ArrayList<Item>) {
-        viewModelScope.launch {
-            val executor = Executors.newFixedThreadPool(10)
-            for (item in list) {
-                val worker = Runnable {
-                    FileUtil.deleteItem(context, item)
-                }
-                executor.execute(worker)
-            }
-            executor.shutdown()
-            while (!executor.isTerminated) {
-            }
-            if (executor.isTerminated) {
-                _itemList.value = getItemsByAlbumName(context)
-            }
-        }
-    }
-
-    fun moveSelectedItems(context: Context, list: ArrayList<Item>, album: Album) {
-        viewModelScope.launch {
-            val executor = Executors.newFixedThreadPool(10)
-            for (item in list) {
-                val worker = Runnable {
-                    FileUtil.moveItem(context, item, album)
-                }
-                executor.execute(worker)
-            }
-            executor.shutdown()
-            while (!executor.isTerminated) {
-            }
-            if (executor.isTerminated) {
-                _itemList.value = getItemsByAlbumName(context)
-            }
-        }
-    }
-
-    fun copySelectedItems(context: Context, list: ArrayList<Item>, album: Album) {
-        viewModelScope.launch {
-            val executor = Executors.newFixedThreadPool(10)
-            for (item in list) {
-                val worker = Runnable {
-                    FileUtil.copyItem(context, item, album)
-                }
-                executor.execute(worker)
-            }
-            executor.shutdown()
-            while (!executor.isTerminated) {
-            }
-            if (executor.isTerminated) {
-                _itemList.value = getItemsByAlbumName(context)
-            }
-        }
-    }
 
 }

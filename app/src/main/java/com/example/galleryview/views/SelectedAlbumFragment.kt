@@ -37,6 +37,7 @@ class SelectedAlbumFragment : Fragment() {
     private fun showAlbums() {
         bundle = requireArguments()
         val selectMode = bundle.getInt("select_mode")
+        val screenType = bundle.getInt("screen_type")
         Log.d("select_mode", selectMode.toString())
         if (selectMode == AppUtil.MODE_COPY) {
             binding.topAppBar.title = "Choose album to copy"
@@ -60,7 +61,20 @@ class SelectedAlbumFragment : Fragment() {
                         viewModel.moveSelectedItems(context!!, viewModel.selectedList, album)
                     }
                     Toast.makeText(context, "Selected ${album.name}", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(R.id.action_selectedAlbumFragment_to_pictureFragment)
+                    if(screenType == AppUtil.FRAGMENT_PICTURE) {
+                        findNavController().navigate(R.id.action_selectedAlbumFragment_to_pictureFragment)
+                    }
+                    else if(screenType == AppUtil.FRAGMENT_ALBUM_VIEW){
+                        val args = Bundle()
+                        args.putString("album_name", bundle.getString("album_name"))
+                        findNavController().navigate(R.id.action_selectedAlbumFragment_to_albumViewFragment,args)
+                    }
+                }
+            }
+
+            override fun onItemLongClick(view: View, position: Int, album: Album) {
+                if(adapter.type == AppUtil.TYPE_SELECT) {
+                    Log.d("Do_nothing", "Do nothing")
                 }
             }
         })

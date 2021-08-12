@@ -38,6 +38,10 @@ class MainViewModel : ViewModel(), CoroutineScope {
     val hideFunctionNav: LiveData<Boolean>
         get() = _hideFunctionNav
 
+    private var _hideAlbumFunctionNav = MutableLiveData<Boolean>()
+    val hideAlbumFunctionNav: LiveData<Boolean>
+        get() = _hideAlbumFunctionNav
+
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
@@ -54,11 +58,23 @@ class MainViewModel : ViewModel(), CoroutineScope {
     val albums: LiveData<MutableList<Album>>
         get() = _albums
 
+
+//    private var _itemListByAlbum = MutableLiveData<ArrayList<Item>>()
+//    val itemListByAlbum: LiveData<ArrayList<Item>>
+//        get() = _itemListByAlbum
+
     private var _onLoading = MutableLiveData<Boolean>()
     val onLoading: LiveData<Boolean>
         get() = _onLoading
 
+
+
+    private var _album = MutableLiveData<Album?>()
+    val album: LiveData<Album?>
+        get() = _album
+
     var selectedList = ArrayList<Item>()
+    var selectedAlbum = ArrayList<Album>()
 
     fun openPictureFragment() {
         _onClickPicture.value = true
@@ -92,6 +108,14 @@ class MainViewModel : ViewModel(), CoroutineScope {
 
     fun showFunctionNavigation() {
         _hideFunctionNav.value = false;
+    }
+
+    fun hideAlbumFNav() {
+        _hideAlbumFunctionNav.value = true;
+    }
+
+    fun showAlbumFNav() {
+        _hideAlbumFunctionNav.value = false;
     }
 
 
@@ -223,4 +247,5 @@ class MainViewModel : ViewModel(), CoroutineScope {
             }!!
         }
     }
+
 }

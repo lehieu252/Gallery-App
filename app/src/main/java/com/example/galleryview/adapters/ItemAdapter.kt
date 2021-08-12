@@ -82,7 +82,7 @@ class ItemAdapter(val context: Context, val type: Int) :
             } else {
                 holder.video_tag.visibility = View.GONE
             }
-            Glide.with(context).load(item.absolutePath).placeholder(R.color.grey).apply(RequestOptions().override(100,100)).centerCrop()
+            Glide.with(context).load(item.absolutePath).placeholder(R.color.grey).apply(RequestOptions().override(200,200)).centerCrop()
                 .into(holder.item_image)
 
             holder.item_holder.setOnClickListener {

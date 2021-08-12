@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/aGroup"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_create_new_folder_24"
+        android:title="@string/group"/>
+    <item
+        android:id="@+id/aMove"
+        android:enabled="true"
+        android:icon="@drawable/folder_move_icon"
+        android:title="@string/move"/>
+    <item
+        android:id="@+id/aDelete"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_delete_forever_24"
+        android:title="@string/delete"/>
+    <item
+        android:id="@+id/aCancel"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_cancel_24"
+        android:title="@string/cancel"/>
+</menu>

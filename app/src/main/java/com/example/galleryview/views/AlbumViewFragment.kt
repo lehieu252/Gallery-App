@@ -20,13 +20,11 @@ import com.example.galleryview.databinding.FragmentAlbumViewBinding
 import com.example.galleryview.models.Item
 import com.example.galleryview.utils.AppUtil
 import com.example.galleryview.viewmodels.AlbumViewModel
-import com.example.galleryview.viewmodels.AlbumViewModelFactory
 import com.example.galleryview.viewmodels.MainViewModel
 
 class AlbumViewFragment : Fragment() {
     private lateinit var binding: FragmentAlbumViewBinding
     private lateinit var albumViewModel: AlbumViewModel
-    private lateinit var albumViewModelFactory: AlbumViewModelFactory
     private val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var bundle: Bundle
     private lateinit var albumName: String
@@ -42,15 +40,10 @@ class AlbumViewFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_album_view, container, false)
         bundle = requireArguments()
         albumName = bundle.getString("album_name").toString()
-        mainViewModel.hideBottomNav.observe(viewLifecycleOwner, {
-            if (!it) {
-                mainViewModel.hideBottomNavigation()
-            }
-        })
-        albumViewModelFactory = AlbumViewModelFactory(albumName)
+        mainViewModel.hideBottomNavigation()
         albumViewModel =
-            ViewModelProvider(this, albumViewModelFactory).get(AlbumViewModel::class.java)
-        context?.let { albumViewModel.getItemsByAlbum(it) }
+            ViewModelProvider(this).get(AlbumViewModel::class.java)
+        context?.let { albumViewModel.getItemsByAlbum(it, albumName) }
 
         setUpToolBar()
         showItem()
@@ -74,7 +67,6 @@ class AlbumViewFragment : Fragment() {
                 binding.functionMenu.visibility = View.VISIBLE
             }
         })
-
         return binding.root
     }
 
@@ -90,25 +82,25 @@ class AlbumViewFragment : Fragment() {
         itemAdapter.albumName = albumName
         val layoutManager = GridLayoutManager(context, 4)
         binding.gridView.layoutManager = layoutManager
-        albumViewModel.itemList.observe(viewLifecycleOwner, {
+        albumViewModel.itemListByAlbum.observe(viewLifecycleOwner) {
             itemAdapter.data = it
-        })
+        }
         binding.gridView.adapter = itemAdapter
 
         itemAdapter.setItemClick(object : OnItemClick {
             override fun onItemClick(view: View, position: Int, item: Item) {
                 if (itemAdapter.isSelectedMode) {
                     if (itemAdapter.selectedList[position]) {
-                        albumViewModel.selectedList.add(item)
+                        mainViewModel.selectedList.add(item)
                     } else {
-                        albumViewModel.selectedList.remove(item)
+                        mainViewModel.selectedList.remove(item)
                     }
-                    Log.d("selected", albumViewModel.selectedList.toString())
+                    Log.d("selected", mainViewModel.selectedList.toString())
                 }
             }
 
             override fun onItemLongClick(view: View, position: Int, item: Item) {
-                albumViewModel.selectedList.clear()
+                mainViewModel.selectedList.clear()
                 itemAdapter.selectedList.clear()
                 albumViewModel.showFunctionNavigation()
             }
@@ -119,39 +111,52 @@ class AlbumViewFragment : Fragment() {
         binding.functionMenu.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.copy -> {
-                    if (albumViewModel.selectedList.size == 0) {
+                    if (mainViewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to copy", Toast.LENGTH_SHORT).show()
                     } else {
                         albumViewModel.hideFunctionNavigation()
                         val bundle = Bundle()
                         bundle.putInt("select_mode", AppUtil.MODE_COPY)
                         bundle.putInt("screen_type", AppUtil.FRAGMENT_ALBUM_VIEW)
-                        findNavController().navigate(R.id.action_albumViewFragment_to_selectedAlbumFragment,bundle)
+                        bundle.putString("album_name", albumName)
+                        findNavController().navigate(
+                            R.id.action_albumViewFragment_to_selectedAlbumFragment,
+                            bundle
+                        )
                     }
                     true
                 }
                 R.id.move -> {
-                    if (albumViewModel.selectedList.size == 0) {
+                    if (mainViewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to move", Toast.LENGTH_SHORT).show()
                     } else {
                         albumViewModel.hideFunctionNavigation()
                         val bundle = Bundle()
                         bundle.putInt("select_mode", AppUtil.MODE_MOVE)
                         bundle.putInt("screen_type", AppUtil.FRAGMENT_ALBUM_VIEW)
-                        findNavController().navigate(R.id.action_albumViewFragment_to_selectedAlbumFragment, bundle)
+                        bundle.putString("album_name", albumName)
+                        findNavController().navigate(
+                            R.id.action_albumViewFragment_to_selectedAlbumFragment,
+                            bundle
+                        )
                     }
                     true
                 }
                 R.id.delete -> {
-                    if (albumViewModel.selectedList.size == 0) {
+                    if (mainViewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to delete", Toast.LENGTH_SHORT).show()
                     } else {
-                        dialog.start()
-                        context?.let { it1 -> albumViewModel.deleteSelectedItem(it1, albumViewModel.selectedList) }
+                        context?.let { it1 ->
+                            mainViewModel.deleteSelectedItem(
+                                it1,
+                                mainViewModel.selectedList
+                            )
+                        }
                         albumViewModel.hideFunctionNavigation()
                         mainViewModel.showBottomNavigation()
-                        albumViewModel.selectedList.clear()
+                        mainViewModel.selectedList.clear()
                         itemAdapter.selectedList.clear()
+                        context?.let { it1 -> albumViewModel.getItemsByAlbum(it1, albumName) }
                     }
                     true
                 }
@@ -159,7 +164,7 @@ class AlbumViewFragment : Fragment() {
                     Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show()
                     albumViewModel.hideFunctionNavigation()
                     mainViewModel.showBottomNavigation()
-                    albumViewModel.selectedList.clear()
+                    mainViewModel.selectedList.clear()
                     itemAdapter.selectedList.clear()
                     true
                 }
@@ -177,7 +182,13 @@ class AlbumViewFragment : Fragment() {
                     true
                 }
                 R.id.aSelectAll -> {
-                    Toast.makeText(context, "SelectAll", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT)
+                        .show()
+                    true
+                }
+                R.id.aSearch -> {
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT)
+                        .show()
                     true
                 }
                 else -> false

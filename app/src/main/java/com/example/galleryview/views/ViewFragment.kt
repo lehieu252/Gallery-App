@@ -1,7 +1,6 @@
 package com.example.galleryview.views
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,14 +14,12 @@ import com.example.galleryview.adapters.ViewPAdapter
 import com.example.galleryview.databinding.FragmentViewBinding
 import com.example.galleryview.utils.AppUtil
 import com.example.galleryview.viewmodels.AlbumViewModel
-import com.example.galleryview.viewmodels.AlbumViewModelFactory
 import com.example.galleryview.viewmodels.MainViewModel
 
 class ViewFragment : Fragment() {
     private lateinit var binding: FragmentViewBinding
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var albumViewModel: AlbumViewModel
-    private lateinit var albumViewModelFactory: AlbumViewModelFactory
 
     private lateinit var viewPagerAdapter: ViewPAdapter
     private lateinit var bundle: Bundle
@@ -51,12 +48,14 @@ class ViewFragment : Fragment() {
                 binding.viewPager.setCurrentItem(curPos, false)
             })
         } else if (type == AppUtil.FRAGMENT_ALBUM) {
+            albumViewModel = ViewModelProvider(this).get(AlbumViewModel::class.java)
             val albumName = bundle.getString("album_name")
-            albumViewModelFactory = AlbumViewModelFactory(albumName!!)
-            albumViewModel =
-                ViewModelProvider(this, albumViewModelFactory).get(AlbumViewModel::class.java)
-            context?.let { albumViewModel.getItemsByAlbum(it) }
-            albumViewModel.itemList.observe(viewLifecycleOwner, {
+            context?.let {
+                if (albumName != null) {
+                    albumViewModel.getItemsByAlbum(it,albumName)
+                }
+            }
+            albumViewModel.itemListByAlbum.observe(viewLifecycleOwner, {
                 viewPagerAdapter.data = it
                 binding.viewPager.adapter = viewPagerAdapter
                 binding.viewPager.setCurrentItem(curPos, false)

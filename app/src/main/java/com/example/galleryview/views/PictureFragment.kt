@@ -113,22 +113,25 @@ class PictureFragment : Fragment() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.pEdit -> {
-                    Log.d("Click", "edit")
                     itemAdapter.toSelectedMode()
                     viewModel.hideBottomNavigation()
                     viewModel.showFunctionNavigation()
                     true
                 }
                 R.id.pSelectAll -> {
-                    Toast.makeText(context, "SelectAll", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.pCreate -> {
-                    Toast.makeText(context, "Create", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.pSlide -> {
-                    Toast.makeText(context, "SlideShow", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.pSearch ->{
+                    Toast.makeText(context, "This feature is being developed", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false

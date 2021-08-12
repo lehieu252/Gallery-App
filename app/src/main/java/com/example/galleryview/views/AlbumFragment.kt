@@ -13,6 +13,7 @@ import com.example.galleryview.R
 import com.example.galleryview.adapters.AlbumAdapter
 import com.example.galleryview.databinding.FragmentAlbumBinding
 import com.example.galleryview.models.Album
+import com.example.galleryview.utils.AppUtil
 import com.example.galleryview.viewmodels.MainViewModel
 
 class AlbumFragment : Fragment() {
@@ -20,9 +21,6 @@ class AlbumFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: AlbumAdapter
 
-    companion object {
-        const val TYPE_VIEW = 1
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +38,7 @@ class AlbumFragment : Fragment() {
 
     private fun showAlbums() {
         context?.let { viewModel.getAllAlbums(it) }
-        adapter = context?.let { AlbumAdapter(it, TYPE_VIEW) }!!
+        adapter = context?.let { AlbumAdapter(it, AppUtil.TYPE_VIEW) }!!
         val layoutManager = GridLayoutManager(context, 3)
         binding.gridView.layoutManager = layoutManager
         viewModel.albums.observe(viewLifecycleOwner, {
@@ -49,7 +47,7 @@ class AlbumFragment : Fragment() {
         binding.gridView.adapter = adapter
         adapter.setItemClick(object : AlbumAdapter.ItemClick {
             override fun onItemClick(view: View, position: Int, album: Album) {
-                if(adapter.type == TYPE_VIEW){
+                if(adapter.type == AppUtil.TYPE_VIEW){
                     val bundle = Bundle()
                     bundle.putString("album_name",album.name)
                     findNavController().navigate(R.id.action_albumFragment_to_albumViewFragment,bundle)

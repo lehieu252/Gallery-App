@@ -18,6 +18,7 @@ import com.example.galleryview.adapters.ItemAdapter
 import com.example.galleryview.adapters.OnItemClick
 import com.example.galleryview.databinding.FragmentPictureBinding
 import com.example.galleryview.models.Item
+import com.example.galleryview.utils.AppUtil
 import com.example.galleryview.viewmodels.MainViewModel
 
 class PictureFragment : Fragment() {
@@ -27,9 +28,6 @@ class PictureFragment : Fragment() {
 //    private var selectedList = ArrayList<Item>()
     private lateinit var dialog: LoadingDialog
 
-    companion object {
-        const val TYPE_PICTURE_FRAGMENT = 1
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,7 +68,7 @@ class PictureFragment : Fragment() {
 
     private fun setUpGridView() {
         context?.let { viewModel.getAllItems(it) }
-        itemAdapter = context?.let { ItemAdapter(it, TYPE_PICTURE_FRAGMENT) }!!
+        itemAdapter = context?.let { ItemAdapter(it, AppUtil.FRAGMENT_PICTURE) }!!
         val layoutManager = GridLayoutManager(activity, 4)
         binding.gridView.layoutManager = layoutManager
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -146,7 +144,10 @@ class PictureFragment : Fragment() {
                         Toast.makeText(context, "Select file to copy", Toast.LENGTH_SHORT).show()
                     } else {
                         viewModel.hideFunctionNavigation()
-                        findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment)
+                        val bundle = Bundle()
+                        bundle.putInt("select_mode", AppUtil.MODE_COPY)
+                        bundle.putInt("screen_type", AppUtil.FRAGMENT_PICTURE)
+                        findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment,bundle)
                     }
                     true
                 }
@@ -155,7 +156,10 @@ class PictureFragment : Fragment() {
                         Toast.makeText(context, "Select file to move", Toast.LENGTH_SHORT).show()
                     } else {
                         viewModel.hideFunctionNavigation()
-                        findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment)
+                        val bundle = Bundle()
+                        bundle.putInt("select_mode", AppUtil.MODE_MOVE)
+                        bundle.putInt("screen_type", AppUtil.FRAGMENT_PICTURE)
+                        findNavController().navigate(R.id.action_pictureFragment_to_selectedAlbumFragment, bundle)
                     }
                     true
                 }

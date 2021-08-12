@@ -15,6 +15,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.example.galleryview.R
 import com.example.galleryview.models.Item
+import com.example.galleryview.utils.AppUtil
 import com.example.galleryview.views.AlbumViewFragment
 import com.example.galleryview.views.PictureFragment
 
@@ -81,8 +82,8 @@ class ItemAdapter(val context: Context, val type: Int) :
             } else {
                 holder.video_tag.visibility = View.GONE
             }
-            Glide.with(context).load(item.absolutePath).placeholder(R.color.grey).centerCrop()
-                .transition(DrawableTransitionOptions.withCrossFade(100)).into(holder.item_image)
+            Glide.with(context).load(item.absolutePath).placeholder(R.color.grey).apply(RequestOptions().override(100,100)).centerCrop()
+                .into(holder.item_image)
 
             holder.item_holder.setOnClickListener {
                 if (isSelectedMode) {
@@ -96,12 +97,12 @@ class ItemAdapter(val context: Context, val type: Int) :
                     itemClick.onItemClick(it, position, item)
                 } else {
                     val bundle: Bundle = Bundle()
-                    if (type == PictureFragment.TYPE_PICTURE_FRAGMENT) {
+                    if (type == AppUtil.FRAGMENT_PICTURE) {
                         bundle.putInt("position", item.position)
                         bundle.putInt("type", type)
                         it.findNavController()
                             .navigate(R.id.action_pictureFragment_to_viewFragment, bundle)
-                    } else if (type == AlbumViewFragment.TYPE_ALBUM_FRAGMENT) {
+                    } else if (type == AppUtil.FRAGMENT_ALBUM) {
                         bundle.putInt("position", position)
                         bundle.putInt("type", type)
                         bundle.putString("album_name", albumName)

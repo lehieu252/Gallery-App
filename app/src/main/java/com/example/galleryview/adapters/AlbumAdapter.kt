@@ -15,6 +15,14 @@ import com.google.android.material.imageview.ShapeableImageView
 
 class AlbumAdapter(val context: Context, val type: Int) :
     RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val albumHolder = itemView.findViewById<LinearLayout>(R.id.album_holder)
+        val albumImage = itemView.findViewById<ShapeableImageView>(R.id.album_image)
+        val albumName = itemView.findViewById<TextView>(R.id.album_name)
+        val albumItemCount = itemView.findViewById<TextView>(R.id.albums_item_count)
+    }
+
     var data = mutableListOf<Album>()
         set(value) {
             field = value
@@ -26,12 +34,6 @@ class AlbumAdapter(val context: Context, val type: Int) :
         this.itemClick = itemClick
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val albumHolder = itemView.findViewById<LinearLayout>(R.id.album_holder)
-        val albumImage = itemView.findViewById<ShapeableImageView>(R.id.album_image)
-        val albumName = itemView.findViewById<TextView>(R.id.album_name)
-        val albumItemCount = itemView.findViewById<TextView>(R.id.albums_item_count)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -49,6 +51,7 @@ class AlbumAdapter(val context: Context, val type: Int) :
             itemClick.onItemClick(it, position, item)
         }
     }
+
     override fun getItemCount(): Int {
         return data.size
     }

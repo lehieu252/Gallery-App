@@ -52,6 +52,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_albumViewFragment_to_selectedAlbumFragment"
+            app:destination="@id/selectedAlbumFragment" />
     </fragment>
     <fragment
         android:id="@+id/selectedAlbumFragment"
@@ -62,6 +65,11 @@
             android:id="@+id/action_selectedAlbumFragment_to_pictureFragment"
             app:destination="@id/pictureFragment"
             app:popUpTo="@id/pictureFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_selectedAlbumFragment_to_albumViewFragment"
+            app:destination="@id/albumViewFragment"
+            app:popUpTo="@id/albumViewFragment"
             app:popUpToInclusive="true" />
     </fragment>
 </navigation>

@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.galleryview.R
 import com.example.galleryview.adapters.ViewPAdapter
 import com.example.galleryview.databinding.FragmentViewBinding
+import com.example.galleryview.utils.AppUtil
 import com.example.galleryview.viewmodels.AlbumViewModel
 import com.example.galleryview.viewmodels.AlbumViewModelFactory
 import com.example.galleryview.viewmodels.MainViewModel
@@ -39,11 +40,9 @@ class ViewFragment : Fragment() {
 
     private fun showItemView() {
         type = bundle.getInt("type")
-        Log.d("type",type.toString())
         val curPos = bundle.getInt("position")
-        Log.d("position_type", "$curPos + $type")
         viewPagerAdapter = activity?.let { ViewPAdapter(it) }!!
-        if (type == PictureFragment.TYPE_PICTURE_FRAGMENT) {
+        if (type == AppUtil.FRAGMENT_PICTURE) {
             viewModel.hideBottomNavigation()
             context?.let { viewModel.getAllItemView(it) }
             viewModel.itemView.observe(viewLifecycleOwner, Observer {
@@ -51,7 +50,7 @@ class ViewFragment : Fragment() {
                 binding.viewPager.adapter = viewPagerAdapter
                 binding.viewPager.setCurrentItem(curPos, false)
             })
-        } else if (type == AlbumViewFragment.TYPE_ALBUM_FRAGMENT) {
+        } else if (type == AppUtil.FRAGMENT_ALBUM) {
             val albumName = bundle.getString("album_name")
             albumViewModelFactory = AlbumViewModelFactory(albumName!!)
             albumViewModel =
@@ -59,7 +58,6 @@ class ViewFragment : Fragment() {
             context?.let { albumViewModel.getItemsByAlbum(it) }
             albumViewModel.itemList.observe(viewLifecycleOwner, {
                 viewPagerAdapter.data = it
-                Log.d("ItemsByAlbum", "$it A ")
                 binding.viewPager.adapter = viewPagerAdapter
                 binding.viewPager.setCurrentItem(curPos, false)
             })
@@ -68,7 +66,7 @@ class ViewFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(type == 1){
+        if(type == AppUtil.FRAGMENT_PICTURE){
             viewModel.showBottomNavigation()
         }
     }

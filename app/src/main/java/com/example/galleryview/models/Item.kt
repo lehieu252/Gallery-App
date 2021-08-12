@@ -7,7 +7,7 @@ data class Item(
     var uri: Uri?,
     var albumName: String?,
     var createdDate: Long,
-    var relativePath: String?,
+    var name: String?,
     var absolutePath: String?,
 ) {
     var isHeader = false

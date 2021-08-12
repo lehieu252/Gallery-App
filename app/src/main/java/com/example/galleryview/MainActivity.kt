@@ -2,6 +2,7 @@ package com.example.galleryview
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        changeColorBar(this,R.color.white,true)
         val myVersion = Build.VERSION.SDK_INT;
         if (myVersion > Build.VERSION_CODES.LOLLIPOP) {
             if (!checkSelfPermission()) {
@@ -55,12 +57,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-//        if (myVersion >= 21) {
-//            val window = this.window
-//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-//            window.statusBarColor = this.resources.getColor(R.color.white)
-//        }
         viewModelFactory = MainViewModelFactory()
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -166,4 +162,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun changeColorBar(activity: Activity, color: Int, light: Boolean){
+        val window = activity.window
+        val osdColor = activity.getColor(color)
+        window.statusBarColor = osdColor
+        window.navigationBarColor = osdColor
+        var visibility = window.decorView.systemUiVisibility
+        if(light){
+            visibility = visibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                visibility = visibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            }
+        }
+        else{
+            visibility = visibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                visibility = visibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            }
+        }
+        window.decorView.systemUiVisibility = visibility
+    }
 }

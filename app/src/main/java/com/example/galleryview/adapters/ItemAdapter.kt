@@ -11,13 +11,10 @@ import androidx.core.util.set
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.example.galleryview.R
 import com.example.galleryview.models.Item
-import com.example.galleryview.utils.AppUtil
-import com.example.galleryview.views.AlbumViewFragment
-import com.example.galleryview.views.PictureFragment
+import com.example.galleryview.utilities.AppUtil
 
 class ItemAdapter(val context: Context, val type: Int) :
     RecyclerView.Adapter<ItemAdapter.ViewHolder>() {

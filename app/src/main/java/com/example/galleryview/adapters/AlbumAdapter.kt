@@ -54,8 +54,14 @@ class AlbumAdapter(val context: Context, val type: Int) :
             holder.albumCheckBox.visibility = View.GONE
             holder.albumName.text = item.name
             holder.albumItemCount.text = item.itemCount.toString()
-            Glide.with(context).load(item.lastItemPath).placeholder(R.color.grey).centerCrop()
-                .transition(DrawableTransitionOptions.withCrossFade(150)).into(holder.albumImage)
+            if(!item.isTempAlbum) {
+                Glide.with(context).load(item.lastItemPath).placeholder(R.color.grey).centerCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade(150))
+                    .into(holder.albumImage)
+            }
+            else{
+                Glide.with(context).load(R.drawable.no_image).into(holder.albumImage)
+            }
         } else {
             holder.albumCheckBox.visibility = View.VISIBLE
             holder.albumCheckBox.isChecked = false

@@ -18,7 +18,7 @@ import com.example.galleryview.adapters.ItemAdapter
 import com.example.galleryview.adapters.OnItemClick
 import com.example.galleryview.databinding.FragmentAlbumViewBinding
 import com.example.galleryview.models.Item
-import com.example.galleryview.utils.AppUtil
+import com.example.galleryview.utilities.AppUtil
 import com.example.galleryview.viewmodels.AlbumViewModel
 import com.example.galleryview.viewmodels.MainViewModel
 
@@ -29,7 +29,6 @@ class AlbumViewFragment : Fragment() {
     private lateinit var bundle: Bundle
     private lateinit var albumName: String
     private lateinit var itemAdapter: ItemAdapter
-    private lateinit var dialog: LoadingDialog
 
 
     override fun onCreateView(

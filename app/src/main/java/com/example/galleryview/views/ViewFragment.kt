@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.galleryview.R
 import com.example.galleryview.adapters.ViewPAdapter
 import com.example.galleryview.databinding.FragmentViewBinding
-import com.example.galleryview.utils.AppUtil
+import com.example.galleryview.utilities.AppUtil
 import com.example.galleryview.viewmodels.AlbumViewModel
 import com.example.galleryview.viewmodels.MainViewModel
 
@@ -63,12 +63,6 @@ class ViewFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if(type == AppUtil.FRAGMENT_PICTURE){
-            viewModel.showBottomNavigation()
-        }
-    }
 }
 
 

@@ -1,11 +1,14 @@
 package com.example.galleryview.views
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.TranslateAnimation
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -16,14 +19,15 @@ import com.example.galleryview.R
 import com.example.galleryview.adapters.AlbumAdapter
 import com.example.galleryview.databinding.FragmentAlbumBinding
 import com.example.galleryview.models.Album
-import com.example.galleryview.utils.AppUtil
+import com.example.galleryview.utilities.AppUtil
 import com.example.galleryview.viewmodels.MainViewModel
 
 class AlbumFragment : Fragment() {
     private lateinit var binding: FragmentAlbumBinding
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: AlbumAdapter
-    private lateinit var createAlbumDialog: CreateAlbumDialog
+    private lateinit var createAlbumDialog: AlertDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,10 +36,10 @@ class AlbumFragment : Fragment() {
         if (viewModel.hideBottomNav.value != false) {
             viewModel.showBottomNavigation()
         }
-        createAlbumDialog = activity?.let { CreateAlbumDialog(it) }!!
         showAlbums()
         onMenuClickItem()
         onclickFunctionNavigation()
+        initDialog()
 
         viewModel.hideAlbumFunctionNav.observe(viewLifecycleOwner, {
             if (it) {
@@ -125,7 +129,7 @@ class AlbumFragment : Fragment() {
                     true
                 }
                 R.id.aCreate -> {
-                    createAlbumDialog.show()
+                    showDialog()
                     true
                 }
                 else -> false
@@ -176,6 +180,31 @@ class AlbumFragment : Fragment() {
             }
         }
     }
+
+
+    private fun initDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+        createAlbumDialog = builder.create()
+        val view = layoutInflater.inflate(R.layout.create_album_dialog, null)
+        createAlbumDialog.setView(view)
+        createAlbumDialog.setCancelable(false)
+        val editText = view.findViewById<TextView>(R.id.album_create_text)
+        val cancelBtn = view.findViewById<Button>(R.id.cancel_dialog_btn)
+        val createBtn = view.findViewById<Button>(R.id.create_dialog_btn)
+
+        createBtn.setOnClickListener {
+            viewModel.insertAlbum(editText.text.toString())
+            createAlbumDialog.dismiss()
+        }
+        cancelBtn.setOnClickListener {
+            createAlbumDialog.dismiss()
+        }
+    }
+
+    private fun showDialog() {
+        createAlbumDialog.show()
+    }
+
 
     override fun onResume() {
         super.onResume()

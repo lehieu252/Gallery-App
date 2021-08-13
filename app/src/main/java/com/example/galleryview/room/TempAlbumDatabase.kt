@@ -1,4 +1,4 @@
-package com.example.galleryview.database
+package com.example.galleryview.room
 
 import android.content.Context
 import androidx.room.Database
@@ -8,7 +8,7 @@ import com.example.galleryview.models.TempAlbum
 
 @Database(entities = [TempAlbum::class], version = 1, exportSchema = false)
 abstract class TempAlbumDatabase : RoomDatabase() {
-    abstract val tempAlbumDao: TempAlbumDAO
+    abstract fun tempAlbumDao(): TempAlbumDAO
 
     companion object {
         @Volatile

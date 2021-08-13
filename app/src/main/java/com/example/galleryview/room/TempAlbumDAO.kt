@@ -1,7 +1,6 @@
-package com.example.galleryview.database
+package com.example.galleryview.room
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.galleryview.models.TempAlbum
@@ -9,11 +8,11 @@ import com.example.galleryview.models.TempAlbum
 @Dao
 interface TempAlbumDAO {
     @Insert
-    fun insert(tempAlbum: TempAlbum)
+    suspend fun insert(tempAlbum: TempAlbum)
 
-    @Delete
-    fun delete(tempAlbum: TempAlbum)
+    @Query("DELETE FROM temp_album_table WHERE name = :albumName")
+    fun delete(albumName: String)
 
     @Query("SELECT * FROM temp_album_table")
-    fun getAll(): ArrayList<TempAlbum>
+    fun getAll(): List<TempAlbum>
 }

@@ -6,4 +6,5 @@ data class Album(val name: String) {
     var imagesCount = 0;
     var videosCount = 0;
     var absolutePath: String? = null
+    var isTempAlbum = false
 }

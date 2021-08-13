@@ -1,4 +1,4 @@
-package com.example.galleryview.utils
+package com.example.galleryview.utilities
 
 class AppUtil {
     companion object {

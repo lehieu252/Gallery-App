@@ -13,8 +13,8 @@ import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import android.view.animation.TranslateAnimation
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        changeColorBar(this,R.color.white,true)
+        changeColorBar(this, R.color.white, true)
         val myVersion = Build.VERSION.SDK_INT;
         if (myVersion > Build.VERSION_CODES.LOLLIPOP) {
             if (!checkSelfPermission()) {
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        viewModelFactory = MainViewModelFactory()
+        viewModelFactory = MainViewModelFactory(applicationContext)
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 //        viewModel.getAllAlbums(this)
@@ -159,25 +159,31 @@ class MainActivity : AppCompatActivity() {
                 navController.navigateUp()
                 navController.navigate(R.id.storyFragment)
             })
+            hamburgerBtn.setOnClickListener {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Album is exist, try another name",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun changeColorBar(activity: Activity, color: Int, light: Boolean){
+    private fun changeColorBar(activity: Activity, color: Int, light: Boolean) {
         val window = activity.window
         val osdColor = activity.getColor(color)
         window.statusBarColor = osdColor
         window.navigationBarColor = osdColor
         var visibility = window.decorView.systemUiVisibility
-        if(light){
+        if (light) {
             visibility = visibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 visibility = visibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
-        }
-        else{
+        } else {
             visibility = visibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 visibility = visibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
         }

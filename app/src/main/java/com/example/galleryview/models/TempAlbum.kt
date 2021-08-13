@@ -6,21 +6,22 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "temp_album_table")
 data class TempAlbum(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
-
     @ColumnInfo(name = "name")
     val name: String,
+) {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    var id: Long = 0
 
     @ColumnInfo(name = "absolute_path")
-    val absolutePath: String,
+    var absolutePath: String? = null
 
     @ColumnInfo(name = "images_count")
-    var imagesCount: Int = 0,
+    var imagesCount: Int = 0
 
     @ColumnInfo(name = "video_count")
-    val videoCount: Int = 0,
+    var videoCount: Int = 0
 
     @ColumnInfo(name = "item_count")
-    val itemsCount: Int = 0,
-)
+    var itemsCount: Int = 0
+}

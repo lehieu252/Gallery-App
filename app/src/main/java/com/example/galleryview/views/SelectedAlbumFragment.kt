@@ -15,7 +15,7 @@ import com.example.galleryview.R
 import com.example.galleryview.adapters.AlbumAdapter
 import com.example.galleryview.databinding.FragmentSelectedAlbumBinding
 import com.example.galleryview.models.Album
-import com.example.galleryview.utils.AppUtil
+import com.example.galleryview.utilities.AppUtil
 import com.example.galleryview.viewmodels.MainViewModel
 
 class SelectedAlbumFragment : Fragment() {
@@ -30,6 +30,9 @@ class SelectedAlbumFragment : Fragment() {
     ): View? {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_selected_album, container, false)
+        if(viewModel.hideBottomNav.value != true){
+            viewModel.hideBottomNavigation()
+        }
         showAlbums()
         return binding.root
     }
@@ -80,8 +83,4 @@ class SelectedAlbumFragment : Fragment() {
         })
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.showBottomNavigation()
-    }
 }

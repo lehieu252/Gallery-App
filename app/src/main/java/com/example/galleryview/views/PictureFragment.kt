@@ -18,15 +18,13 @@ import com.example.galleryview.adapters.ItemAdapter
 import com.example.galleryview.adapters.OnItemClick
 import com.example.galleryview.databinding.FragmentPictureBinding
 import com.example.galleryview.models.Item
-import com.example.galleryview.utils.AppUtil
+import com.example.galleryview.utilities.AppUtil
 import com.example.galleryview.viewmodels.MainViewModel
 
 class PictureFragment : Fragment() {
     private lateinit var binding: FragmentPictureBinding
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var itemAdapter: ItemAdapter
-//    private var selectedList = ArrayList<Item>()
-    private lateinit var dialog: LoadingDialog
 
 
     override fun onCreateView(
@@ -34,7 +32,9 @@ class PictureFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_picture, container, false)
-        dialog = activity?.let { LoadingDialog(it) }!!
+        if(viewModel.hideBottomNav.value == true){
+            viewModel.showBottomNavigation()
+        }
         setUpGridView()
         onMenuClickItem()
         onclickFunctionNavigation()
@@ -58,11 +58,6 @@ class PictureFragment : Fragment() {
             }
         })
 
-        viewModel.onLoading.observe(viewLifecycleOwner, {
-            if (!it) {
-                dialog.dismiss()
-            }
-        })
         return binding.root
     }
 
@@ -170,7 +165,6 @@ class PictureFragment : Fragment() {
                     if (viewModel.selectedList.size == 0) {
                         Toast.makeText(context, "Select file to delete", Toast.LENGTH_SHORT).show()
                     } else {
-                        dialog.start()
                         context?.let { it1 -> viewModel.deleteSelectedItem(it1, viewModel.selectedList) }
                         viewModel.hideFunctionNavigation()
                         viewModel.showBottomNavigation()

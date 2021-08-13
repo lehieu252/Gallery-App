@@ -2,21 +2,37 @@ package com.example.galleryview.viewmodels
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.galleryview.models.Album
 import com.example.galleryview.models.Item
-import com.example.galleryview.utils.FileUtil
+import com.example.galleryview.models.TempAlbum
+import com.example.galleryview.repository.TempAlbumRepository
+import com.example.galleryview.room.TempAlbumDatabase
+import com.example.galleryview.utilities.FileUtil
 import kotlinx.coroutines.*
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
-class MainViewModel : ViewModel(), CoroutineScope {
+class MainViewModel(val context: Context) : ViewModel(), CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
+
+    private val repository: TempAlbumRepository
+
+    init {
+        val tempAlbumDAO = TempAlbumDatabase.getInstance(context).tempAlbumDao()
+        repository = TempAlbumRepository(tempAlbumDAO)
+    }
+
     private var _onClickPicture = MutableLiveData<Boolean>()
     val onClickPicture: LiveData<Boolean>
         get() = _onClickPicture
@@ -42,9 +58,6 @@ class MainViewModel : ViewModel(), CoroutineScope {
     val hideAlbumFunctionNav: LiveData<Boolean>
         get() = _hideAlbumFunctionNav
 
-    private val job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Main
 
     private var _itemList = MutableLiveData<ArrayList<Item>>()
     val itemList: LiveData<ArrayList<Item>>
@@ -63,6 +76,9 @@ class MainViewModel : ViewModel(), CoroutineScope {
     val onLoading: LiveData<Boolean>
         get() = _onLoading
 
+    private var _isCreatedAlbum = MutableLiveData<Boolean>()
+    val isCreatedAlbum: LiveData<Boolean>
+        get() = _isCreatedAlbum
 
     var selectedList = ArrayList<Item>()
     var selectedAlbum = ArrayList<Album>()
@@ -170,6 +186,9 @@ class MainViewModel : ViewModel(), CoroutineScope {
             for (item in list) {
                 val worker = Runnable {
                     FileUtil.moveItem(context, item, album)
+                    if(album.isTempAlbum){
+                        repository.delete(album.name)
+                    }
                 }
                 executor.execute(worker)
             }
@@ -189,6 +208,9 @@ class MainViewModel : ViewModel(), CoroutineScope {
             for (item in list) {
                 val worker = Runnable {
                     FileUtil.copyItem(context, item, album)
+                    if(album.isTempAlbum){
+                        repository.delete(album.name)
+                    }
                 }
                 executor.execute(worker)
             }
@@ -221,23 +243,46 @@ class MainViewModel : ViewModel(), CoroutineScope {
         }
     }
 
-    fun deleteSelectedAlbum(context: Context, list: ArrayList<Album>){
+    fun insertAlbum(albumName: String) {
+        val folder = File("/storage/emulated/0/DCIM/", albumName)
+        if (!folder.exists()) {
+            folder.mkdirs()
+            viewModelScope.launch {
+                val tempAlbum = TempAlbum(albumName)
+                tempAlbum.absolutePath = folder.absolutePath
+                repository.insert(tempAlbum)
+            }
+            Toast.makeText(context,"Create album successfully", Toast.LENGTH_SHORT).show()
+            getAllAlbums(context)
+        } else {
+            Toast.makeText(context,"Album is exist, try another name", Toast.LENGTH_SHORT).show()
+            getAllAlbums(context)
+        }
+    }
+
+    fun deleteSelectedAlbum(context: Context, list: ArrayList<Album>) {
         viewModelScope.launch {
             val executor = Executors.newFixedThreadPool(5)
-            for(album in list){
+            for (album in list) {
                 val worker = Runnable {
-                    FileUtil.deleteAlbum(context,album)
+                    if (album.isTempAlbum) {
+                        repository.delete(album.name)
+                        File(album.absolutePath).delete()
+                    } else {
+                        FileUtil.deleteAlbum(context, album)
+                    }
                 }
                 executor.execute(worker)
             }
             executor.shutdown()
             while (!executor.isTerminated) {
             }
-            if(executor.isTerminated) {
+            if (executor.isTerminated) {
                 _albums.value = FileUtil.getAllAlbums(context)
             }
         }
     }
+
     fun getAllItems(context: Context) {
         viewModelScope.launch(Dispatchers.Main) {
             _itemList.value = withContext(Dispatchers.IO) {
@@ -249,7 +294,15 @@ class MainViewModel : ViewModel(), CoroutineScope {
     fun getAllAlbums(context: Context) {
         viewModelScope.launch(Dispatchers.Main) {
             _albums.value = withContext(Dispatchers.IO) {
-                FileUtil.getAllAlbums(context)
+                val listAlbums = FileUtil.getAllAlbums(context)
+                val listTempAlbum = repository.getAllTempAlbum()
+                for (item in listTempAlbum) {
+                    val album = Album(item.name)
+                    album.absolutePath = item.absolutePath
+                    album.isTempAlbum = true
+                    listAlbums.add(album)
+                }
+                listAlbums
             }!!
         }
     }

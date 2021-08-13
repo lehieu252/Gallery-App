@@ -1,4 +1,4 @@
-package com.example.galleryview.utils
+package com.example.galleryview.utilities
 
 import android.content.ContentUris
 import android.content.ContentValues
@@ -26,7 +26,11 @@ class FileUtil {
                 return
             } else {
                 if (item.isVideo) {
-                    File(item.absolutePath).copyTo(newFile, false)
+                    val oldFile = File(item.absolutePath)
+                    if(!oldFile.exists()){
+                        return
+                    }
+                    oldFile.copyTo(newFile, false)
                     val newImage = ContentValues().apply {
                         put(MediaStore.Video.Media.DATA, "${album.absolutePath}/${item.name}")
                         put(MediaStore.Video.Media.DURATION, item.duration)
@@ -36,7 +40,11 @@ class FileUtil {
                         newImage
                     )
                 } else {
-                    File(item.absolutePath).copyTo(newFile, false)
+                    val oldFile = File(item.absolutePath)
+                    if(!oldFile.exists()){
+                        return
+                    }
+                    oldFile.copyTo(newFile, false)
                     val newImage = ContentValues().apply {
                         put(MediaStore.Images.Media.DATA, "${album.absolutePath}/${item.name}")
                     }
@@ -54,7 +62,11 @@ class FileUtil {
                 return
             } else {
                 if (item.isVideo) {
-                    File(item.absolutePath).copyTo(newFile, false)
+                    val oldFile = File(item.absolutePath)
+                    if(!oldFile.exists()){
+                        return
+                    }
+                    oldFile.copyTo(newFile, false)
                     val newVideo = ContentValues().apply {
                         put(MediaStore.Video.Media.DATA, "${album.absolutePath}/${item.name}")
                         put(MediaStore.Video.Media.DURATION, item.duration)
@@ -64,7 +76,11 @@ class FileUtil {
                         newVideo
                     )
                 } else {
-                    File(item.absolutePath).copyTo(newFile, false)
+                    val oldFile = File(item.absolutePath)
+                    if(!oldFile.exists()){
+                        return
+                    }
+                    oldFile.copyTo(newFile, false)
                     deleteItem(context, item)
                     val newImage = ContentValues().apply {
                         put(MediaStore.Images.Media.DATA, "${album.absolutePath}/${item.name}")

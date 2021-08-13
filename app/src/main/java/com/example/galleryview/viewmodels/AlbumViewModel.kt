@@ -1,19 +1,14 @@
 package com.example.galleryview.viewmodels
 
-import android.content.ContentUris
 import android.content.Context
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.galleryview.models.Album
 import com.example.galleryview.models.Item
-import com.example.galleryview.utils.FileUtil
+import com.example.galleryview.utilities.FileUtil
 import kotlinx.coroutines.*
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 class AlbumViewModel : ViewModel(), CoroutineScope {

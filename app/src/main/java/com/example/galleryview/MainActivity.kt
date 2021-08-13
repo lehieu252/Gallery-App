@@ -160,11 +160,8 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.storyFragment)
             })
             hamburgerBtn.setOnClickListener {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Album is exist, try another name",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@MainActivity, "This feature is being developed", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
